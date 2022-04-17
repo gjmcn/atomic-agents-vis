@@ -207,7 +207,7 @@ An actor with pointing/heading `0` faces the viewer's right, so images that will
 
 ### Shapes
 
-When an agent's sprite path is falsy, the agent's shape is used &mdash; a square, rectangle or circle. By default, _basic shapes_ are used; the `squareAdvanced`, `zoneAdvanced` and `actorAdvanced` options can be used to enable _advanced shapes_ &mdash; i.e. to enable line and fill options.
+When an agent's sprite path is falsy, the agent's shape is used &mdash; a square, rectangle or circle. By default, <i>basic shapes</i> are used; the `squareAdvanced`, `zoneAdvanced` and `actorAdvanced` options can be used to enable <i>advanced shapes</i> &mdash; i.e. to enable line and fill options.
 
 The `xxxLineAlign` options specify line alignment: `0` = inner, `0.5` = middle, `1` = outer.
 
@@ -221,7 +221,7 @@ Use `backgroundTile: true` to tile the background, and `zoneTile: true` (or a fu
 
 Setting `squareParticles`, `zoneParticles` and `actorParticles` to truthy values improves performance. However, a particle option can only be used under the following conditions:
 
-* For agents of the relevant type, all images used must come from the same sprite sheet _or_ all agents must use [basic shapes](#shapes).
+* For agents of the relevant type, all images used must come from the same sprite sheet <i>or</i> all agents must use [basic shapes](#shapes).
 
 * Agents of the relevant type should not be [updated](#functions-and-updates) &mdash; so if e.g. `actorParticles` is `true`, it makes sense to set `updateActorSprite` to `false`. (There are no restrictions on `actorTint` and `actorAlpha`.)
 
