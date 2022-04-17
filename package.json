@@ -1,0 +1,27 @@
+{
+  "name": "atomic-agents-vis",
+  "version": "0.1.0",
+  "description": "Visualise Atomic Agents simulations.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "esbuild src/index.js --format=esm --bundle --minify --sourcemap --outfile=dist/atomic-agents-vis.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gjmcn/atomic-agents-vis.git"
+  },
+  "author": "Graham McNeill",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gjmcn/atomic-agents-vis/issues"
+  },
+  "homepage": "https://github.com/gjmcn/atomic-agents-vis#readme",
+  "dependencies": {
+    "pixi.js": "^6.3.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.11"
+  }
+}
