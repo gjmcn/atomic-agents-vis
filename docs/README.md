@@ -13,11 +13,16 @@ npm install @gjmcn/atomic-agent-vis`
 Skypack CDN:
 
 ```js
-import {vis} from 'https://cdn.skypack.dev/@gjmcn/atomic-agents-vis';
+// import everything as AV
+import * as AV from 'https://cdn.skypack.dev/@gjmcn/atomic-agents-vis';
+```
 
-// or to import everything:
+```js
+// or use named imports
 import {vis, visObs, colors, PIXI} from 'https://cdn.skypack.dev/@gjmcn/atomic-agents-vis';
 ```
+
+?> Note: append `?min` to the Skypack URL for minified code.
 
 ## Usage
 
