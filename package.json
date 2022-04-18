@@ -2,11 +2,12 @@
   "name": "atomic-agents-vis",
   "version": "0.1.0",
   "description": "Visualise Atomic Agents simulations.",
-  "main": "index.js",
   "type": "module",
+  "main": "src/index.js",
+  "module": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild src/index.js --format=esm --bundle --minify --sourcemap --outfile=dist/atomic-agents-vis.js"
+    "build": "esbuild src/index.js --format=esm --bundle --sourcemap --outfile=dist/index.js"
   },
   "repository": {
     "type": "git",
