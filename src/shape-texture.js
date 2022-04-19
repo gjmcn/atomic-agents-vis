@@ -3,7 +3,9 @@
 // converts it to a texture.
 ////////////////////////////////////////////////////////////////////////////////
 
-import * as PIXI from 'pixi.js';
+// use browser version of PixiJS to fix issue #2
+import * as PIXI from '../node_modules/pixi.js/dist/browser/pixi.mjs';
+
 
 const drawShape = {
 
