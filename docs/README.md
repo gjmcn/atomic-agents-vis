@@ -56,7 +56,10 @@ The simulation can be paused and unpaused as normal: `sim.pause(true)`, `sim.pau
 | `autoDensity` | `true` | Resize renderer view in CSS pixels to allow for resolutions other than 1? |
 | `antialias` | `true` | Antialias? |
 | `clearBeforeRender` | `true` | Clear the canvas before each render pass? |
+| `preserveDrawingBuffer` | `false` | Enable drawing buffer preservation? |
 | `sprites` | `[]` | Paths/URLs to sprite files. Files that have already been loaded (i.e. where the texture already exists) are skipped. |
+
+To avoid clearing the canvas between frames, use `clearBeforeRender: false` <i>and</i> `preserveDrawingBuffer: true`. In this case, [`baseColor`](#base-and-background) and [`baseAlpha`](#base-and-background) are ignored; if there is no [background](#base-and-background), actors leave permanent trails; if there is a background with alpha less than 1, actors leave fading trails. Note that 'trails' are from previous frames so are covered by anything drawn in the current frame. Also, a background with alpha less than one will not appear faint since the background will keep being drawn on top of itself.
 
 ### Before and After Functions
 

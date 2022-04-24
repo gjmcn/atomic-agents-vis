@@ -25,6 +25,7 @@ export function vis(sim, options = {}) {
     autoDensity             = true,
     antialias               = true,  
     clearBeforeRender       = true,
+    preserveDrawingBuffer   = false,
     sprites                 = [],
     beforeSetup             = null,
     afterSetup              = null,
@@ -116,7 +117,8 @@ export function vis(sim, options = {}) {
     resolution,
     autoDensity,
     antialias,    
-    clearBeforeRender
+    clearBeforeRender,
+    preserveDrawingBuffer
   });
   app.ticker.maxFPS = maxFPS;
   target.appendChild(app.view);
