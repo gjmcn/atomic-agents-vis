@@ -11,98 +11,93 @@ PIXI.utils.skipHello();
 
 export { PIXI, colors };
 
+
+// ===== vis function ==========================================================
+
 export function vis(sim, options = {}) {
 
-  // options
+
+  // ===== options =============================================================
+
   const {
     
-    target                  = document.body,
-    run                     = true,
-    maxFPS                  = 0,
-    stats                   = false,
-    cleanup                 = false,
-    resolution              = window.devicePixelRatio || 1,
-    autoDensity             = true,
-    antialias               = true,  
-    clearBeforeRender       = true,
-    preserveDrawingBuffer   = false,
-    sprites                 = [],
-    beforeSetup             = null,
-    afterSetup              = null,
-    beforeTick              = null,
-    afterTick               = null,
-    finished                = null,
-        
-    baseColor               = 0x808080,
-    baseAlpha               = 1,
+    target                = document.body,
+    run                   = true,
+    maxFPS                = 0,
+    stats                 = false,
+    cleanup               = false,
+    resolution            = window.devicePixelRatio || 1,
+    autoDensity           = true,
+    antialias             = true,  
+    clearBeforeRender     = true,
+    preserveDrawingBuffer = false,
+    sprites               = [],
+    zIndex                = false,
+    beforeSetup           = null,
+    afterSetup            = null,
+    beforeTick            = null,
+    afterTick             = null,
+    finished              = null,
+    
+    backParticles         = false,
+    middleParticles       = false,
+    frontParticles        = false,
 
-    backgroundVisible       = false,
-    backgroundTint          = 0xffffff,
-    backgroundAlpha         = 1,
-    backgroundSprite        = null,
-    updateBackgroundVisible = true,
-    updateBackgroundTint    = true,
-    updateBackgroundAlpha   = true,
-    updateBackgroundSprite  = true,
-    backgroundTile          = false,
+    baseColor             = 0x808080,
+    baseAlpha             = 1,
 
-    squareVisible           = false,
-    squareTint              = 0xffffff,  
-    squareAlpha             = 1,
-    squareSprite            = null,
-    updateSquareVisible     = true,
-    updateSquareTint        = true,
-    updateSquareAlpha       = true,
-    updateSquareSprite      = true,
-    squareAdvanced          = false,
-    squareLineColor         = 0x0,
-    squareLineAlpha         = 1,
-    squareLineWidth         = 1,
-    squareLineAlign         = 0.5,
-    squareFillColor         = 0xffffff,
-    squareFillAlpha         = 1,
-    squareParticles         = false,
+    background            = false,
+    backgroundTint        = 0xffffff,
+    backgroundAlpha       = 1,
+    backgroundSprite      = null,
+    backgroundTile        = false,
+
+    squareTint            = 0xffffff,  
+    squareAlpha           = 1,
+    squareSprite          = null,
+    squareAdvanced        = false,
+    squareLineColor       = 0x0,
+    squareLineAlpha       = 1,
+    squareLineWidth       = 1,
+    squareLineAlign       = 0.5,
+    squareFillColor       = 0xffffff,
+    squareFillAlpha       = 1,
     
-    zoneVisible             = true,
-    zoneTint                = 0xffffff,
-    zoneAlpha               = 1,
-    zoneSprite              = null,
-    updateZoneVisible       = true,
-    updateZoneTint          = true,
-    updateZoneAlpha         = true,
-    updateZoneSprite        = true,
-    zoneAdvanced            = false,
-    zoneLineColor           = 0x0,
-    zoneLineAlpha           = 1,
-    zoneLineWidth           = 1,
-    zoneLineAlign           = 0.5,
-    zoneFillColor           = 0xffffff,
-    zoneFillAlpha           = 1,
-    zoneTile                = false,
-    zoneParticles           = false,
+    zoneTint              = 0xffffff,
+    zoneAlpha             = 1,
+    zoneSprite            = null,
+    zoneAdvanced          = false,
+    zoneLineColor         = 0x0,
+    zoneLineAlpha         = 1,
+    zoneLineWidth         = 1,
+    zoneLineAlign         = 0.5,
+    zoneFillColor         = 0xffffff,
+    zoneFillAlpha         = 1,
+    zoneTile              = false,
     
-    actorVisible            = true,
-    actorTint               = 0xffffff,
-    actorAlpha              = 1,
-    actorSprite             = null,
-    updateActorVisible      = true,
-    updateActorTint         = true,
-    updateActorAlpha        = true,
-    updateActorSprite       = true,
-    actorAdvanced           = false,
-    actorLineColor          = 0x0,
-    actorLineAlpha          = 1,
-    actorLineWidth          = 1,
-    actorLineAlign          = 0.5,
-    actorFillColor          = 0xffffff,
-    actorFillAlpha          = 1,
-    actorPointing           = true,
-    actorRadius             = true,
-    actorParticles          = false,
-    basicCircleRadius       = 64,
-    advancedCircleScale     = 5,
-    
+    actorTint             = 0xffffff,
+    actorAlpha            = 1,
+    actorSprite           = null,
+    actorAdvanced         = false,
+    actorLineColor        = 0x0,
+    actorLineAlpha        = 1,
+    actorLineWidth        = 1,
+    actorLineAlign        = 0.5,
+    actorFillColor        = 0xffffff,
+    actorFillAlpha        = 1,
+    actorPointing         = true,
+    actorRadius           = true,
+    basicCircleRadius     = 64,
+    advancedCircleScale   = 5,
+
+    updateTint            = true,
+    updateAlpha           = true,
+    updateSprite          = true,
+
   } = options;
+
+
+  // ===== Pixi and app ========================================================
 
   // Pixi aliases
   const loader = new PIXI.Loader();
@@ -122,6 +117,9 @@ export function vis(sim, options = {}) {
   });
   app.ticker.maxFPS = maxFPS;
   target.appendChild(app.view);
+
+
+  // ===== helper functions ====================================================
 
   // evaluate option value
   function optionValue(agent, option) {
@@ -145,9 +143,16 @@ export function vis(sim, options = {}) {
     return imgPath ? PIXI.Texture.from(imgPath) : null;
   }
 
-  // background
+  // is agent included in vis? 
+  function includeAgent(agent) {
+    agent.zIndex || agent.zIndex === 0;
+  }
+
+
+  // ===== background ==========================================================
+
   let addBackground, updateBackground;
-  if (backgroundVisible) {  // backgroundVisible may be function or other truthy
+  if (background) {
 
     let spr;
 
@@ -169,91 +174,101 @@ export function vis(sim, options = {}) {
       }
       spr.tint = backgroundOptionValue(backgroundTint);
       spr.alpha = backgroundOptionValue(backgroundAlpha);
-      spr.visible = backgroundOptionValue(backgroundVisible);
       app.stage.addChild(spr);
     };
 
     // update background
-    let updateVisible;
-    if (updateBackgroundVisible && typeof backgroundVisible === 'function') {
-      updateVisible = () => spr.visible = backgroundVisible(sim);
-    }    
     const updateFunctions = [];
-    if (updateBackgroundSprite && typeof backgroundSprite === 'function') {
+    if (typeof backgroundSprite === 'function') {
       updateFunctions.push(() => {
         const texture = backgroundImageTexture() || PIXI.Texture.WHITE;
         if (spr.texture !== texture) spr.texture = texture;
       });
     }
-    if (updateBackgroundTint && typeof backgroundTint === 'function') {
+    if (typeof backgroundTint === 'function') {
       updateFunctions.push(() => spr.tint = backgroundTint(sim));
     }
-    if (updateBackgroundAlpha && typeof backgroundAlpha === 'function') {
+    if (typeof backgroundAlpha === 'function') {
       updateFunctions.push(() => spr.alpha = backgroundAlpha(sim));
     }
-    if (updateVisible || updateFunctions.length) {
+    if (updateFunctions.length) {
       updateBackground = function() {
-        updateVisible?.();
-        if (spr.visible) {
-          for (let f of updateFunctions) f();
-        }
-      };
+        for (let f of updateFunctions) f();
+      }
     }
 
   }
 
-  // squares
-  let squaresMap, squaresContainer, addSquare, updateSquare;
-  if (squareVisible) {  // squareVisible may be function or other truthy
 
-    // squares map and container
-    squaresMap = new Map();
-    squaresContainer = squareParticles
-      ? new PIXI.ParticleContainer(sim.squares.size, {tint: true})
-      : new PIXI.Container();
-  
-    // add square
-    addSquare = function(sq) {
-      const info = {};
-      info.imgTexture = imageTexture(sq, squareSprite);
-      if (!info.imgTexture ||
-          (updateSquareSprite && typeof squareSprite === 'function')) {    
-        if (optionValue(sq, squareAdvanced)) {
-          info.shpTexture = shapeTexture({
-            name: 'rect',
-            color: optionValue(sq, squareFillColor),
-            alpha: optionValue(sq, squareFillAlpha),
-            lineColor: optionValue(sq, squareLineColor),
-            lineWidth: optionValue(sq, squareLineWidth),
-            lineAlpha: optionValue(sq, squareLineAlpha),
-            lineAlign: optionValue(sq, squareLineAlign),
-            width: sim.gridStep,
-            height: sim.gridStep
-          }, app, true);
-        }
-        else {
-          info.shpTexture = PIXI.Texture.WHITE;
-        }
+  // =====  back, middle and front containers ==================================
+
+  function createContainer(particles) {
+    return particles
+    ? new PIXI.ParticleContainer(
+        Number.isInteger(particles) ? particles : 10_000,
+        { rotation: true, tint: true, vertices: true, autoResize: true }
+      )
+    : new PIXI.Container();
+  }
+  const backContainer   = createContainer(backParticles);
+  const middleContainer = createContainer(middleParticles);
+  const frontContainer  = createContainer(frontParticles);
+
+  // only middle container use z-index
+  middleContainer.sortableChildren = true;
+
+  // get container for agent based on its zIndex
+  function getContainer({zIndex}) {
+    if      (zIndex === -Infinity)    return backContainer;
+    else if (zIndex ===  Infinity)    return frontContainer;
+    else if (Number.isFinite(zIndex)) return middleContainer;
+    else                              return backContainer;
+  }
+
+  // ===== squares =============================================================
+
+  // add square
+  const squaresMap = new Map();
+  function addSquare(sq) {
+    const info = {};
+    info.imgTexture = imageTexture(sq, squareSprite);
+    if (!info.imgTexture ||
+        (updateSprite && typeof squareSprite === 'function')) {    
+      if (optionValue(sq, squareAdvanced)) {
+        info.shpTexture = shapeTexture({
+          name: 'rect',
+          color: optionValue(sq, squareFillColor),
+          alpha: optionValue(sq, squareFillAlpha),
+          lineColor: optionValue(sq, squareLineColor),
+          lineWidth: optionValue(sq, squareLineWidth),
+          lineAlpha: optionValue(sq, squareLineAlpha),
+          lineAlign: optionValue(sq, squareLineAlign),
+          width: sim.gridStep,
+          height: sim.gridStep
+        }, app, true);
       }
-      const spr = new Sprite(info.imgTexture || info.shpTexture);
-      spr.position.set(sq.xMin, sq.yMin);
-      spr.width = sim.gridStep;
-      spr.height = sim.gridStep;
-      spr.tint = optionValue(sq, squareTint);
-      spr.alpha = optionValue(sq, squareAlpha);
-      spr.visible = optionValue(sq, squareVisible);
-      info.spr = spr;
-      squaresContainer.addChild(spr);
-      squaresMap.set(sq, info);
-    };
+      else {
+        info.shpTexture = PIXI.Texture.WHITE;
+      }
+    }
+    const spr = new Sprite(info.imgTexture || info.shpTexture);
+    spr.position.set(sq.xMin, sq.yMin);
+    spr.width = sim.gridStep;
+    spr.height = sim.gridStep;
+    spr.tint = optionValue(sq, squareTint);
+    spr.alpha = optionValue(sq, squareAlpha);
+    const container = getContainer(sq);
+    container.addChild(spr);
+    if (container === middleContainer) spr.zIndex = sq.zIndex;
+    info.spr = spr;
+    squaresMap.set(sq, info);
+  };
   
-    // update square
-    let updateVisible;
-    if (updateSquareVisible && typeof squareVisible === 'function') {
-      updateVisible = (spr, sq) => spr.visible = squareVisible(sq);
-    } 
+  // update square
+  let updateSquare;
+  {
     const updateFunctions = [];
-    if (updateSquareSprite && typeof squareSprite === 'function') {
+    if (updateSprite && typeof squareSprite === 'function') {
       updateFunctions.push((spr, sq) => {
         const info = squaresMap.get(sq);
         info.imgTexture = imageTexture(sq, squareSprite);
@@ -261,90 +276,76 @@ export function vis(sim, options = {}) {
         if (spr.texture !== texture) spr.texture = texture;
       });
     }
-    if (updateSquareTint && typeof squareTint === 'function') {
+    if (updateTint && typeof squareTint === 'function') {
       updateFunctions.push((spr, sq) => spr.tint = squareTint(sq));
     }
-    if (updateSquareAlpha && typeof squareAlpha === 'function') {
+    if (updateAlpha && typeof squareAlpha === 'function') {
       updateFunctions.push((spr, sq) => spr.alpha = squareAlpha(sq));
     }
-    if (updateVisible || updateFunctions.length) {
+    if (updateFunctions.length) {
       updateSquare = function({spr}, sq) {
-        updateVisible?.(spr, sq);
-        if (spr.visible) {
-          for (let f of updateFunctions) f(spr, sq);
-        }
+        for (let f of updateFunctions) f(spr, sq);
       };
     }
-
   }
 
-  // zones
-  let zonesMap, zonesContainer, addZone, updateZone;
-  if (zoneVisible) {  // zoneVisible may be function or other truthy
-    
-    // zones map and container
-    zonesMap = new Map();
-    zonesContainer = zoneParticles
-      ? new PIXI.ParticleContainer(
-          Number.isInteger(zoneParticles) ? zoneParticles : 1000, 
-          {tint: true}
-        )
-      : new PIXI.Container();
 
-    // add zone
-    addZone = function(zn) {
-      const w = zn.xMax - zn.xMin;
-      const h = zn.yMax - zn.yMin;
-      const info = {};
-      info.imgTexture = imageTexture(zn, zoneSprite);
-      const useTiling = optionValue(zn, zoneTile);
-      if (!info.imgTexture ||
-          (updateZoneSprite && typeof zoneSprite === 'function')) { 
-        if (optionValue(zn, zoneAdvanced)) {
-          info.shpTexture = shapeTexture({
-            name: 'rect',
-            color: optionValue(zn, zoneFillColor),
-            alpha: optionValue(zn, zoneFillAlpha),
-            lineColor: optionValue(zn, zoneLineColor),
-            lineWidth: optionValue(zn, zoneLineWidth),
-            lineAlpha: optionValue(zn, zoneLineAlpha),
-            lineAlign: optionValue(zn, zoneLineAlign),
-            width: useTiling ? sim.gridStep : w,
-            height: useTiling ? sim.gridStep : h,
-          }, app, true);
-        }
-        else {
-          info.shpTexture = PIXI.Texture.WHITE;
-        }
-      }
-      let spr;
-      const texture = info.imgTexture || info.shpTexture;
-      if (useTiling) {
-        spr = TilingSprite.from(texture, {width: w, height: h});
-        spr.tileScale.x = sim.gridStep / texture.width;
-        spr.tileScale.y = sim.gridStep / texture.height;
+  // ===== zones ===============================================================
+    
+  // add zone
+  const zonesMap = new Map();
+  function addZone(zn) {
+    const w = zn.xMax - zn.xMin;
+    const h = zn.yMax - zn.yMin;
+    const info = {};
+    info.imgTexture = imageTexture(zn, zoneSprite);
+    const useTiling = optionValue(zn, zoneTile);
+    if (!info.imgTexture ||
+        (updateSprite && typeof zoneSprite === 'function')) { 
+      if (optionValue(zn, zoneAdvanced)) {
+        info.shpTexture = shapeTexture({
+          name: 'rect',
+          color: optionValue(zn, zoneFillColor),
+          alpha: optionValue(zn, zoneFillAlpha),
+          lineColor: optionValue(zn, zoneLineColor),
+          lineWidth: optionValue(zn, zoneLineWidth),
+          lineAlpha: optionValue(zn, zoneLineAlpha),
+          lineAlign: optionValue(zn, zoneLineAlign),
+          width: useTiling ? sim.gridStep : w,
+          height: useTiling ? sim.gridStep : h,
+        }, app, true);
       }
       else {
-        spr = new Sprite(texture);
-        spr.width = w;
-        spr.height = h;
+        info.shpTexture = PIXI.Texture.WHITE;
       }
-      spr.position.set(zn.xMin, zn.yMin);
-      spr.tint = optionValue(zn, zoneTint);
-      spr.alpha = optionValue(zn, zoneAlpha);
-      spr.visible = optionValue(zn, zoneVisible);
-      info.spr = spr;
-      zonesContainer.addChild(spr);
-      zonesMap.set(zn, info);
-    };
+    }
+    let spr;
+    const texture = info.imgTexture || info.shpTexture;
+    if (useTiling) {
+      spr = TilingSprite.from(texture, {width: w, height: h});
+      spr.tileScale.x = sim.gridStep / texture.width;
+      spr.tileScale.y = sim.gridStep / texture.height;
+    }
+    else {
+      spr = new Sprite(texture);
+      spr.width = w;
+      spr.height = h;
+    }
+    spr.position.set(zn.xMin, zn.yMin);
+    spr.tint = optionValue(zn, zoneTint);
+    spr.alpha = optionValue(zn, zoneAlpha);
+    const container = getContainer(zn);
+    if (container === middleContainer) spr.zIndex = zn.zIndex;
+    container.addChild(spr);
+    info.spr = spr;
+    zonesMap.set(zn, info);
+  };
 
-    // update zone
-    let updateVisible;
-    if (updateZoneVisible && typeof zoneVisible === 'function') {
-      updateVisible = (spr, zn) => spr.visible = zoneVisible(zn);
-    } 
+  // update zone
+  let updateZone;
+  {
     const updateFunctions = [];
-    if (updateZoneSprite && typeof zoneSprite === 'function') {
+    if (updateSprite && typeof zoneSprite === 'function') {
       updateFunctions.push((spr, zn) => {
         const info = zonesMap.get(zn);
         info.imgTexture = imageTexture(zn, zoneSprite);
@@ -352,84 +353,71 @@ export function vis(sim, options = {}) {
         if (spr.texture !== texture) spr.texture = texture;
       });
     }
-    if (updateZoneTint && typeof zoneTint === 'function') {
+    if (updateTint && typeof zoneTint === 'function') {
       updateFunctions.push((spr, zn) => spr.tint = zoneTint(zn));
     }
-    if (updateZoneAlpha && typeof zoneAlpha === 'function') {
+    if (updateAlpha && typeof zoneAlpha === 'function') {
       updateFunctions.push((spr, zn) => spr.alpha = zoneAlpha(zn));
     }
-    if (updateVisible || updateFunctions.length) {
+    if (updateFunctions.length) {
       updateZone = function({spr}, zn) {
-        updateVisible?.(spr, zn);
-        if (spr.visible) {
-          for (let f of updateFunctions) f(spr, zn);
-        }
-      };
+        for (let f of updateFunctions) f(spr, zn);
+      }
     }
   }
 
-  // actors
-  let actorsMap, actorsContainer, addActor, updateActor;
-  if (actorVisible) {  // actorVisible may be function or other truthy
 
-    // basic circle texture
-    const basicCircle = shapeTexture({
-      name: 'circle',
-      color: 0xffffff,
-      radius: basicCircleRadius
-    }, app);
+  // ===== actors ==============================================================
 
-    // actors map and container
-    actorsMap = new Map();
-    actorsContainer = actorParticles
-      ? new PIXI.ParticleContainer(
-          Number.isInteger(actorParticles) ? actorParticles : 10000,
-          { rotation: true, tint: true, vertices: true }
-        )
-      : new PIXI.Container();
+  // basic circle texture
+  const basicCircle = shapeTexture({
+    name: 'circle',
+    color: 0xffffff,
+    radius: basicCircleRadius
+  }, app);
 
-    // add actor
-    addActor = function(ac) {
-      const info = {};
-      info.imgTexture = imageTexture(ac, actorSprite);
-      if (!info.imgTexture ||
-          (updateActorSprite && typeof actorSprite === 'function')) { 
-        if (optionValue(ac, actorAdvanced)) {
-          info.shpTexture = shapeTexture({
-            name: 'circle',
-            color: optionValue(ac, actorFillColor),
-            alpha: optionValue(ac, actorFillAlpha),
-            lineColor: optionValue(ac, actorLineColor),
-            lineWidth: optionValue(ac, actorLineWidth) * advancedCircleScale,
-            lineAlpha: optionValue(ac, actorLineAlpha),
-            lineAlign: optionValue(ac, actorLineAlign),
-            radius: ac.radius * advancedCircleScale,
-          }, app, true);
-        }
-        else {
-          info.shpTexture = basicCircle;
-        }
+  // add actor
+  const actorsMap = new Map();
+  function addActor(ac) {
+    const info = {};
+    info.imgTexture = imageTexture(ac, actorSprite);
+    if (!info.imgTexture ||
+        (updateSprite && typeof actorSprite === 'function')) { 
+      if (optionValue(ac, actorAdvanced)) {
+        info.shpTexture = shapeTexture({
+          name: 'circle',
+          color: optionValue(ac, actorFillColor),
+          alpha: optionValue(ac, actorFillAlpha),
+          lineColor: optionValue(ac, actorLineColor),
+          lineWidth: optionValue(ac, actorLineWidth) * advancedCircleScale,
+          lineAlpha: optionValue(ac, actorLineAlpha),
+          lineAlign: optionValue(ac, actorLineAlign),
+          radius: ac.radius * advancedCircleScale,
+        }, app, true);
       }
-      const spr = new Sprite(info.imgTexture || info.shpTexture);
-      spr.anchor.set(0.5, 0.5);
-      spr.position.set(ac.x, ac.y);
-      spr.width = spr.height = 2 * ac.radius;
-      spr.rotation = ac.pointing ?? ac.heading();
-      spr.tint = optionValue(ac, actorTint);
-      spr.alpha = optionValue(ac, actorAlpha);
-      spr.visible = optionValue(ac, actorVisible);
-      info.spr = spr;
-      actorsContainer.addChild(spr);
-      actorsMap.set(ac, info);
-    };
+      else {
+        info.shpTexture = basicCircle;
+      }
+    }
+    const spr = new Sprite(info.imgTexture || info.shpTexture);
+    spr.anchor.set(0.5, 0.5);
+    spr.position.set(ac.x, ac.y);
+    spr.width = spr.height = 2 * ac.radius;
+    spr.rotation = ac.pointing ?? ac.heading();
+    spr.tint = optionValue(ac, actorTint);
+    spr.alpha = optionValue(ac, actorAlpha);
+    const container = getContainer(ac);
+    if (container === middleContainer) spr.zIndex = ac.zIndex;
+    container.addChild(spr);
+    info.spr = spr;
+    actorsMap.set(ac, info);
+  };
 
-    // update actor
-    let updateVisible;
-    if (updateActorVisible && typeof actorVisible === 'function') {
-      updateVisible = (spr, ac) => spr.visible = actorVisible(ac);
-    } 
+  // update actor
+  let updateActor;
+  {
     const updateFunctions = [];
-    if (updateActorSprite && typeof actorSprite === 'function') {
+    if (updateSprite && typeof actorSprite === 'function') {
       updateFunctions.push((spr, ac) => {
         const info = actorsMap.get(ac);
         info.imgTexture = imageTexture(ac, actorSprite);
@@ -453,22 +441,21 @@ export function vis(sim, options = {}) {
         }
       });
     }
-    if (updateActorTint && typeof actorTint === 'function') {
+    if (updateTint && typeof actorTint === 'function') {
       updateFunctions.push((spr, ac) => spr.tint = actorTint(ac));
     }
-    if (updateActorAlpha && typeof actorAlpha === 'function') {
+    if (updateAlpha && typeof actorAlpha === 'function') {
       updateFunctions.push((spr, ac) => spr.alpha = actorAlpha(ac));
     }
     updateActor = function({spr}, ac) {
-      updateVisible?.(spr, ac);
-      if (spr.visible) {
-        spr.position.set(ac.x, ac.y);
-        for (let f of updateFunctions) f(spr, ac);
-      }
+      spr.position.set(ac.x, ac.y);
+      for (let f of updateFunctions) f(spr, ac);
     };
   }
 
-  // setup
+  
+  // ===== setup function ======================================================
+
   function setup() {
 
     // before setup
@@ -477,27 +464,22 @@ export function vis(sim, options = {}) {
     // add background
     addBackground?.();
 
-    // add squares
-    if (squareVisible) {
-      sim.squares.forEach(addSquare);
-      app.stage.addChild(squaresContainer);
-    }
+    // add squares, zones and actors
+    for (sq of sim.squares) if (includeAgent(sq)) addSquare(sq);
+    for (zn of sim.zones)   if (includeAgent(zn)) addZone(zn);
+    for (ac of sim.actors)  if (includeAgent(ac)) addActor(ac);
     
-    // add zones
-    if (zoneVisible) {
-      sim.zones.forEach(addZone);
-      app.stage.addChild(zonesContainer);
-    }
-    
-    // add actors
-    if (actorVisible) {
-      sim.actors.forEach(addActor);
-      app.stage.addChild(actorsContainer);
-    }
+    // add containers to stage
+    app.stage.addChild(backContainer);
+    app.stage.addChild(middleContainer);
+    app.stage.addChild(frontContainer);
 
     // after setup
     afterSetup?.(sim, app, PIXI);
-  
+
+    // disable future z-index updates?
+    if (!zIndex) middleContainer.sortableChildren = false;
+
     // run simulation
     if (run) app.ticker.add(tick);
 
@@ -513,7 +495,9 @@ export function vis(sim, options = {}) {
     statsDiv.style.font = '14px sans-serif';
   }
 
-  // tick
+
+  // ===== tick function =======================================================
+
   function tick() {
 
     // finished?
@@ -541,28 +525,38 @@ export function vis(sim, options = {}) {
     // background: update
     updateBackground?.();
 
+    // update z-index
+    if (typeof zIndex === 'function') {
+      middleContainer.sortableChildren = zIndex(sim);
+    }
+
     // squares: update
     if (updateSquare) squaresMap.forEach(updateSquare);
     
     // zones: remove, add, update
-    if (zoneVisible) {
-      for (let zn of sim._zonesRemoved) {
-        zonesContainer.removeChild(zonesMap.get(zn).spr);
+    for (let zn of sim._zonesRemoved) {
+      if (zonesMap.has(zn)) {
+        getContainer(zn).removeChild(zonesMap.get(zn).spr);
         zonesMap.delete(zn);
       }
-      sim._zonesAdded.forEach(addZone);
-      if (updateZone) zonesMap.forEach(updateZone);
     }
+    for (let zn of sim._zonesAdded) {
+      if (includeAgent(zn)) addZone(zn);
+    }
+    if (updateZone) zonesMap.forEach(updateZone);
+    
 
     // actors: remove, add, update
-    if (actorVisible) {
-      for (let ac of sim._actorsRemoved) {
-        actorsContainer.removeChild(actorsMap.get(ac).spr);
+    for (let ac of sim._actorsRemoved) {
+      if (actorsMap.has(ac)) {
+        getContainer(ac).removeChild(actorsMap.get(ac).spr);
         actorsMap.delete(ac);
       }
-      sim._actorsAdded.forEach(addActor);
-      if (updateActor) actorsMap.forEach(updateActor);
     }
+    for (let ac of sim._actorsAdded) {
+      if (includeAgent(ac)) addActor(ac);
+    }
+    if (updateActor) actorsMap.forEach(updateActor);
 
     // after tick
     afterTick?.(sim, app, PIXI);
@@ -583,8 +577,11 @@ export function vis(sim, options = {}) {
 
   }
 
-  // load sprite images (unless already loaded) then call setup
+  
+  // =====  load sprite images then call setup =================================
+  // - filter out images that have already been loaded
   // - urls of spritesheets have '_image' appended to them in the TextureCache
+  
   const cachedTextureURLs = Object.keys(PIXI.utils.TextureCache);
   loader.add(sprites.filter(src => {
     return src.split('.').pop() === 'json'
@@ -595,7 +592,9 @@ export function vis(sim, options = {}) {
 
 }
 
-// convenience function for using vis in Observable
+
+// ===== convenience function for using vis in Observable ======================
+
 export function visObs(sim, options) {
   const div = document.createElement('div');
   options = {...options, target: div, cleanup: true};

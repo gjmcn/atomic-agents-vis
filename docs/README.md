@@ -1,4 +1,4 @@
-# Introduction
+## Introduction
 
 Visualise [Atomic Agents](https://gjmcn.github.io/atomic-agents) simulations with WebGL (via [PixiJS](https://pixijs.com/)).
 
@@ -7,7 +7,7 @@ Visualise [Atomic Agents](https://gjmcn.github.io/atomic-agents) simulations wit
 npm:
 
 ```
-npm install @gjmcn/atomic-agent-vis`
+npm install @gjmcn/atomic-agent-vis
 ```
 
 Skypack CDN:
@@ -46,7 +46,7 @@ The simulation can be paused and unpaused as normal: `sim.pause(true)`, `sim.pau
 ### Top Level
 
 | Option       | Default   | Description |
-|:--------------|:-----------|:------------|
+|:-------------|:-----------|:------------|
 | `target` | `document.body` | HTML element where the canvas is inserted. |
 | `run` | `true` | Run the simulation to completion? If `false`, draws the agents currently in the simulation, but does not run the simulation. |
 | `maxFPS` | `0` (no limit) | Max frames per second. If used, should be one of `10`, `12`, `15`, `20`, `30` or `60`. |
@@ -58,6 +58,13 @@ The simulation can be paused and unpaused as normal: `sim.pause(true)`, `sim.pau
 | `clearBeforeRender` | `true` | Clear the canvas before each render pass? |
 | `preserveDrawingBuffer` | `false` | Enable drawing buffer preservation? |
 | `sprites` | `[]` | Paths/URLs to sprite files. Files that have already been loaded (i.e. where the texture already exists) are skipped. |
+| `zIndex` | `false` | Reorder on z-index? &mdash; see [Drawing Order](#drawing-order) and [Functions and Updates](#functions-and-updates). |
+| `updateTint` | `true` | Update agents' tints? &mdash; see [Functions and Updates](#functions-and-updates). |
+| `updateAlpha` | `true` | Update agents' alphas? &mdash; see [Functions and Updates](#functions-and-updates). |
+| `updateSprite` | `true` | Update agents' sprites? &mdash; see [Functions and Updates](#functions-and-updates). |
+| `backParticles` | `false` | Back container is a particle container? &mdash; see [Particles](#particles) |
+| `middleParticles` | `false` | Middle container is a particle container? &mdash; see [Particles](#particles) |
+| `frontParticles` | `false` | Front container is a particle container? &mdash; see [Particles](#particles) |
 
 To avoid clearing the canvas between frames, use `clearBeforeRender: false` <i>and</i> `preserveDrawingBuffer: true`. In this case, [`baseColor`](#base-and-background) and [`baseAlpha`](#base-and-background) are ignored; if there is no [background](#base-and-background), actors leave permanent trails; if there is a background with alpha less than 1, actors leave fading trails. Note that 'trails' are from previous frames so are covered by anything drawn in the current frame. Also, a background with alpha less than one will not appear faint since the background will keep being drawn on top of itself.
 
@@ -84,13 +91,15 @@ vis(new Simulation(), {
 
 ### Base and Background
 
-The 'base' is below the 'background'. Use `baseColor` for a simple colored background that does not change.
+The <i>base</i> is below the 'background'. Use `baseColor` for a simple colored background that does not change.
+
+The background is only added if the `background` option is truthy. 
 
 | Option       | Default   | Function allowed? | Called each tick? |
 |:--------------|:-----------|:------------:|:------------:|
-| `baseColor` | `0x808080` |  |
-| `baseAlpha` | `1` |  |
-| `backgroundVisible` | `false` | ✓ | ✓ |
+| `baseColor` | `0x808080` |  |  |
+| `baseAlpha` | `1` |  |  |
+| `background` | `false` |  |
 | `backgroundTint` | `0xffffff` | ✓ | ✓ |
 | `backgroundAlpha` | `1` | ✓ | ✓ |
 | `backgroundSprite` | `null` | ✓ | ✓ |
@@ -100,7 +109,6 @@ The 'base' is below the 'background'. Use `baseColor` for a simple colored backg
 
 | Option       | Default   | Function allowed? | Called each tick? |
 |:--------------|:-----------|:------------:|:------------:|
-| `squareVisible` | `false` | ✓ | ✓ |
 | `squareTint` | `0xffffff` | ✓ |  ✓ | 
 | `squareAlpha` | `1` | ✓ | ✓ |
 | `squareSprite` | `null` | ✓ | ✓ |
@@ -111,13 +119,11 @@ The 'base' is below the 'background'. Use `baseColor` for a simple colored backg
 | `squareLineAlign` | `0.5` | ✓ |  |
 | `squareFillColor` | `0xffffff` | ✓ |  |
 | `squareFillAlpha` | `1` | ✓ |  |
-| `squareParticles` | `false` |  |  |
 
 ### Zones
 
 | Option       | Default   | Function allowed? | Called each tick? |
 |:--------------|:-----------|:------------:|:------------:|
-| `zoneVisible` | `true` | ✓ | ✓ |
 | `zoneTint` | `0xffffff` | ✓ | ✓ |
 | `zoneAlpha` | `1` | ✓ | ✓ |
 | `zoneSprite` | `null` | ✓ | ✓ |
@@ -129,13 +135,11 @@ The 'base' is below the 'background'. Use `baseColor` for a simple colored backg
 | `zoneFillColor` | `0xffffff` | ✓ |  |
 | `zoneFillAlpha` | `1` | ✓ |  |
 | `zoneTile` | `false` | ✓ |  |
-| `zoneParticles` | `false` |  |  |
 
 ### Actors
 
 | Option       | Default   | Function allowed? | Called each tick? |
 |:--------------|:-----------|:------------:|:------------:|
-| `actorVisible` | `true` | ✓ | ✓ |
 | `actorTint` | `0xffffff` | ✓ | ✓ |
 | `actorAlpha` | `1` | ✓ | ✓ |
 | `actorSprite` | `null` | ✓ | ✓ |
@@ -148,7 +152,6 @@ The 'base' is below the 'background'. Use `baseColor` for a simple colored backg
 | `actorFillAlpha` | `1` | ✓ |  |
 | `actorPointing` | `true` | ✓ | ✓ |
 | `actorRadius` | `true` | ✓ | ✓ |
-| `actorParticles` | `false` |  |  |
 | `basicCircleRadius` | `64` |  |  |
 | `advancedCircleScale` | `5` |  |  |
 
@@ -156,30 +159,41 @@ An actor's rotation is given by its `pointing` property, unless this is `null` o
 
 `basicCircleRadius` is the radius of the default circle texture used for actors. `advancedCircleScale` is how many times larger each circle texture is than its actor when using [advanced shapes](#advanced-shape-options). Increasing these values gives smoother edges to the circles.
 
-## Functions and updates
+## Drawing Order
 
-If an option is a function (see the tables above), it is called for each agent of the relevant type &mdash; the function is passed the agent (or in the case of background options, the simulation object) and the returned value is used as the option value for the agent.
+An agent is either never drawn, or is added to one of three <i>containers</i> based on the agent's `zIndex` property:
 
-Some option functions are called each tick (see the tables above), allowing the option to be updated per agent per tick. If these updates are not wanted or are unnecessary (i.e. the option function should only be called once for each agent of the relevant type), the relevant 'update option' can be set to `false`. The update options are:
+* <i>never drawn</i>, `zIndex`: `false` (or any falsy value other than `0`)
+* <i>back container</i>, `zIndex`: `-Infinity`.
+* <i>middle container</i>, `zIndex`: finite number.
+* <i>front container</i>, `zIndex`: `Infinity`.
 
-&emsp;&emsp;`updateBackgroundVisible`<br>
-&emsp;&emsp;`updateBackgroundTint`<br>
-&emsp;&emsp;`updateBackgroundAlpha`<br>
-&emsp;&emsp;`updateBackgroundSprite`<br><br>
-&emsp;&emsp;`updateSquareVisible`<br>
-&emsp;&emsp;`updateSquareTint`<br>
-&emsp;&emsp;`updateSquareAlpha`<br>
-&emsp;&emsp;`updateSquareSprite`<br><br>
-&emsp;&emsp;`updateZoneVisible`<br>
-&emsp;&emsp;`updateZoneTint`<br>
-&emsp;&emsp;`updateZoneAlpha`<br>
-&emsp;&emsp;`updateZoneSprite`<br><br>
-&emsp;&emsp;`updateActorVisible`<br>
-&emsp;&emsp;`updateActorTint`<br>
-&emsp;&emsp;`updateActorAlpha`<br>
-&emsp;&emsp;`updateActorSprite`
+Each tick, the simulation is drawn in the following order:
 
-The initial size of a shape/sprite which represents an actor is based on the actor's initial radius. Set the `actorRadius` option to `true`/`false` to enable/disable size updates during the simulation &mdash; or use a function to control size updates per actor per tick. Similarly, the rotation of an actor's shape/sprite is initialised from its pointing/heading, and `actorPointing` is used to control updates.
+1. The background.
+1. Agents in the back container, in the order they were added to the simulation.
+1. Agents in the middle container, in ascending order of their `zIndex` properties.
+1. Agents in the front container, in the order they were added to the simulation.
+
+An agent cannot move between containers. If an agent's `zIndex` may change during the simulation, set its `zIndex` to a finite number so that it is added to the middle container. This should be done when creating the agent, or immediately after the agent is created &mdash; i.e. before the visualisation 'sees' the agent for the first time.
+
+To hide an agent, set its alpha to `0`. For example, to hide an actor, use a function for `actorAlpha` which returns `0` when passed the actor to be hidden.
+
+## Functions and Updates
+
+If an option such as `zoneTint` or `actorAlpha` is a function (see the tables above), it is called for each agent of the relevant type. The function is passed the agent (or in the case of background options, the simulation object) and the returned value is used as the option value.
+
+Some option functions are called each tick (see the tables above), allowing the option to be updated per agent per tick. If these updates are not required for any agent, the relevant 'update option' can be set to `false`. The update options are:
+
+&emsp;&emsp;`updateTint`<br>
+&emsp;&emsp;`updateAlpha`<br>
+&emsp;&emsp;`updateSprite`<br><br>
+
+?> Note: the above `update` options only affect agents; the background is always updated if the corresponding options are functions.
+
+The initial size of a shape/sprite which represents an actor is based on the actor's initial radius. Set the `actorRadius` option to `true`/`false` to enable/disable size updates every tick &mdash; or use a function to control size updates per actor per tick. Similarly, the rotation of an actor's shape/sprite is initialised from its pointing/heading, and `actorPointing` is used to control updates.
+
+The initial [drawing order](#drawing-order) for agents in the middle container is based on the agents' `zIndex` properties. Set the `zIndex` option to `true`/`false` to enable/disable reordering every tick &mdash; or use a function (which is passed the simulation) to control reordering per tick.
 
 ## Colors
 
@@ -219,23 +233,32 @@ When an agent's sprite path is falsy, the agent's shape is used &mdash; a square
 
 The `xxxLineAlign` options specify line alignment: `0` = inner, `0.5` = middle, `1` = outer.
 
-## Notes
-
-### Tiling
+## Tiling
 
 Use `backgroundTile: true` to tile the background, and `zoneTile: true` (or a function) to tile zones. Tiles are the same size as simulation squares, so when using a sprite for tiles, the image should be square. Currently, each image-to-tile scale is only computed once during initialisation, so if a sprite is changed during the simulation (e.g. the sprite of a tiled zone is switched from a grass image to a sand image), the new image should have the same size as the old image.
 
-### Particles
+## Particles
 
-Setting `squareParticles`, `zoneParticles` and `actorParticles` to truthy values improves performance. However, a particle option can only be used under the following conditions:
+Set `backParticles` to `true` to specify that the back container (see [Drawing Order](#drawing-order)) is a <i>particle container</i>. Similarly, use `middleParticles` and `frontParticles` to use particle containers for the middle and front containers respectively.
 
-* For agents of the relevant type, all images used must come from the same sprite sheet <i>or</i> all agents must use [basic shapes](#shapes).
+Particle containers improve performance, but are only suitable in some cases:
 
-* Agents of the relevant type should not be [updated](#functions-and-updates) &mdash; so if e.g. `actorParticles` is `true`, it makes sense to set `updateActorSprite` to `false`. (There are no restrictions on `actorTint` and `actorAlpha`.)
+* All images used by agents in the container must come from the same sprite sheet <i>or</i> all agents must use [basic shapes](#shapes).
 
-* The corresponding visibility option (`squareVisible`, `zoneVisible` or `actorVisible`) is `true` &mdash; not a function.
+* The tints and alphas of agents in a particle container can be updated (as can the radii and pointings of actors), but the sprites cannot be updated &mdash; changes to sprites are ignored.
 
-`squareParticles` need only be `true` or `false`, but for `zoneParticles` and `actorParticles`, the option value specifies the maximum number of shapes/sprites that can be rendered. If `zoneParticles` is truthy but not an integer, the maximum is set to `1000`; for `actorParticles`, the value is `10000`.
+Instead of setting a particle option such as `backParticles` to `true`, we can use a positive integer: the estimated maximum size required for the container. This need not be accurate since the container will resize if more 'particles' are required. When a particle option is `true`, `10000` is used for the estimated max size.
+
+## The `visObs` function
+
+`visObs(sim, options)` can be used instead of `vis(sim, options)` when working in [Observable](https://observablehq.com/). `visObs` does the following:
+
+1. Creates a div element.
+1. Shallow copies `options`, and sets the `target` option to the created div and the `cleanup` option to `true`.
+1. Calls `vis(sim, options)`.
+1. Returns the div.
+
+## Notes
 
 ### Browser only
 
@@ -277,15 +300,10 @@ While an Atomic Agents simulation will run in any JavaScript environment, Atomic
 
 ### Gotchas
 
-* The base is visible by default, but the background and squares are not. Use `backgroundVisible` and `squareVisible` respectively to make them visible.
+* The `background` option is `false` by default.
+
+* The `zIndex` options is `false` by default &mdash; so agents in the middle component are drawn in order of their `zIndex` properties initially, but this order is not updated if the `zIndex` properties change or new agents are added.
+
+* In Atomic Agents, the `zIndex` property of squares is `false` by default &mdash; so squares are not drawn in Atomic Agents Vis by default.
 
 * When using a function for an option, the returned value is used 'as is'. In particular, `undefined` and `null` are not replaced with the option's default value.
-
-### The `visObs` function
-
-`visObs(sim, options)` can be used instead of `vis(sim, options)` when working in [Observable](https://observablehq.com/). `visObs` does the following:
-
-1. Creates a div element.
-1. Shallow copies `options`, and sets the `target` option to the created div and the `cleanup` option to `true`.
-1. Calls `vis(sim, options)`.
-1. Returns the div.
