@@ -217,13 +217,18 @@ export function vis(sim, options = {}) {
   // only middle container uses z-index
   middleContainer.sortableChildren = true;
 
-  // get container for agent based on its zIndex
-  function getContainer({zIndex}) {
-    return zIndex === -Infinity
+  // add sprite to container
+  function addSpriteToContainer(agent, spr) {
+    const container = agent.zIndex === -Infinity
       ? backContainer
-      : zIndex === Infinity
+      : agent.zIndex === Infinity
         ? frontContainer
         : middleContainer;
+    container.addChild(spr);
+    if (container === middleContainer) {
+      spr.zIndex = agent.zIndex;
+      if (updateZIndex) spr.__agent__ = agent;
+    }
   }
 
   
@@ -259,9 +264,7 @@ export function vis(sim, options = {}) {
     spr.height = sim.gridStep;
     spr.tint = optionValue(sq, squareTint);
     spr.alpha = optionValue(sq, squareAlpha);
-    const container = getContainer(sq);
-    container.addChild(spr);
-    if (container === middleContainer) spr.zIndex = sq.zIndex;
+    addSpriteToContainer(sq, spr);
     info.spr = spr;
     squaresMap.set(sq, info);
   };
@@ -336,9 +339,7 @@ export function vis(sim, options = {}) {
     spr.position.set(zn.xMin, zn.yMin);
     spr.tint = optionValue(zn, zoneTint);
     spr.alpha = optionValue(zn, zoneAlpha);
-    const container = getContainer(zn);
-    if (container === middleContainer) spr.zIndex = zn.zIndex;
-    container.addChild(spr);
+    addSpriteToContainer(zn, spr);
     info.spr = spr;
     zonesMap.set(zn, info);
   };
@@ -408,9 +409,7 @@ export function vis(sim, options = {}) {
     spr.rotation = ac.pointing ?? ac.heading();
     spr.tint = optionValue(ac, actorTint);
     spr.alpha = optionValue(ac, actorAlpha);
-    const container = getContainer(ac);
-    if (container === middleContainer) spr.zIndex = ac.zIndex;
-    container.addChild(spr);
+    addSpriteToContainer(ac, spr);
     info.spr = spr;
     actorsMap.set(ac, info);
   };
@@ -461,9 +460,9 @@ export function vis(sim, options = {}) {
     addBackground?.();
 
     // add squares, zones and actors
-    for (sq of sim.squares) if (includeAgent(sq)) addSquare(sq);
-    for (zn of sim.zones)   if (includeAgent(zn)) addZone(zn);
-    for (ac of sim.actors)  if (includeAgent(ac)) addActor(ac);
+    for (let sq of sim.squares) if (includeAgent(sq)) addSquare(sq);
+    for (let zn of sim.zones)   if (includeAgent(zn)) addZone(zn);
+    for (let ac of sim.actors)  if (includeAgent(ac)) addActor(ac);
     
     // add containers to stage
     app.stage.addChild(backContainer);
@@ -555,8 +554,12 @@ export function vis(sim, options = {}) {
     afterTick?.(sim, app, PIXI);
 
     // update z-index
-    if (typeof updateZIndex === 'function') {
-      middleContainer.sortableChildren = updateZIndex(sim);
+    if (updateZIndex &&
+        (typeof updateZIndex !== 'function' || updateZIndex(sim))) {
+      for (let spr of middleContainer.children) {
+        spr.zIndex = spr.__agent__.zIndex;
+      }
+      middleContainer.sortChildren();
     }
 
     // update stats
