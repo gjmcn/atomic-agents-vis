@@ -58,10 +58,6 @@ The simulation can be paused and unpaused as normal: `sim.pause(true)`, `sim.pau
 | `clearBeforeRender` | `true` | Clear the canvas before each render pass? |
 | `preserveDrawingBuffer` | `false` | Enable drawing buffer preservation? |
 | `sprites` | `[]` | Paths/URLs to sprite files. Files that have already been loaded (i.e. where the texture already exists) are skipped. |
-| `zIndex` | `false` | Reorder on z-index? &mdash; see [Drawing Order](#drawing-order) and [Functions and Updates](#functions-and-updates). |
-| `updateTint` | `true` | Update agents' tints? &mdash; see [Functions and Updates](#functions-and-updates). |
-| `updateAlpha` | `true` | Update agents' alphas? &mdash; see [Functions and Updates](#functions-and-updates). |
-| `updateSprite` | `true` | Update agents' sprites? &mdash; see [Functions and Updates](#functions-and-updates). |
 | `backParticles` | `false` | Back container is a particle container? &mdash; see [Particles](#particles) |
 | `middleParticles` | `false` | Middle container is a particle container? &mdash; see [Particles](#particles) |
 | `frontParticles` | `false` | Front container is a particle container? &mdash; see [Particles](#particles) |
@@ -150,8 +146,6 @@ The background is only added if the `background` option is truthy.
 | `actorLineAlign` | `0.5` | ✓ |  |
 | `actorFillColor` | `0xffffff` | ✓ |  |
 | `actorFillAlpha` | `1` | ✓ |  |
-| `actorPointing` | `true` | ✓ | ✓ |
-| `actorRadius` | `true` | ✓ | ✓ |
 | `basicCircleRadius` | `64` |  |  |
 | `advancedCircleScale` | `5` |  |  |
 
@@ -159,11 +153,24 @@ An actor's rotation is given by its `pointing` property, unless this is `null` o
 
 `basicCircleRadius` is the radius of the default circle texture used for actors. `advancedCircleScale` is how many times larger each circle texture is than its actor when using [advanced shapes](#advanced-shape-options). Increasing these values gives smoother edges to the circles.
 
+### Updates
+
+| Option       | Default   | Function allowed? | Called each tick? |
+|:--------------|:-----------|:------------:|:------------:|
+| `updateTint` | `true` |  |  |
+| `updateAlpha` | `true` |  |  |
+| `updateSprite` | `true` |  |  |
+| `updateRadius` | `false` |  |  |
+| `updatePointing` | `false` |  |  |
+| `updateZIndex` | `false` | ✓ | ✓ |
+
+See the [Functions and Updates](#functions-and-updates) section for details.
+
 ## Drawing Order
 
 An agent is either never drawn, or is added to one of three <i>containers</i> based on the agent's `zIndex` property:
 
-* <i>never drawn</i>, `zIndex`: `false` (or any falsy value other than `0`)
+* never drawn, `zIndex`: `NaN` (or any non-number).
 * <i>back container</i>, `zIndex`: `-Infinity`.
 * <i>middle container</i>, `zIndex`: finite number.
 * <i>front container</i>, `zIndex`: `Infinity`.
@@ -177,23 +184,17 @@ Each tick, the simulation is drawn in the following order:
 
 An agent cannot move between containers. If an agent's `zIndex` may change during the simulation, set its `zIndex` to a finite number so that it is added to the middle container. This should be done when creating the agent, or immediately after the agent is created &mdash; i.e. before the visualisation 'sees' the agent for the first time.
 
-To hide an agent, set its alpha to `0`. For example, to hide an actor, use a function for `actorAlpha` which returns `0` when passed the actor to be hidden.
+?> Note: once an agent has been added to a container, setting it's `zIndex` to `NaN` does not hide the agent. Instead, use an alpha of `0` to hide the agent.
 
 ## Functions and Updates
 
-If an option such as `zoneTint` or `actorAlpha` is a function (see the tables above), it is called for each agent of the relevant type. The function is passed the agent (or in the case of background options, the simulation object) and the returned value is used as the option value.
+If an option such as `zoneTint` or `actorAlpha` is a function, it is called for each agent of the relevant type. The function is passed the agent (or in the case of background options, the simulation object) and the returned value is used as the option value. Furthermore, the function is called each tick, so the option is updated per agent per tick. If these updates are not required for any agent, the relevant 'update option' (`updateTint`, `updateAlpha` or `updateSprite`) can be set to `false`.
 
-Some option functions are called each tick (see the tables above), allowing the option to be updated per agent per tick. If these updates are not required for any agent, the relevant 'update option' can be set to `false`. The update options are:
+?> Note: the `updateTint`, `updateAlpha` and `updateSprite` options only affect agents; the background is updated each tick if any of `backgroundTint`, `backgroundAlpha` or `backgroundSprite` are functions.
 
-&emsp;&emsp;`updateTint`<br>
-&emsp;&emsp;`updateAlpha`<br>
-&emsp;&emsp;`updateSprite`<br><br>
+The initial size of an actor's shape/sprite is based on the actor's initial radius. By default, the size of the sprite/shape is not updated when the radius changes; set the `updateRadius` option to `true` to update actors' radii each tick. Similarly, the rotation of an actor's shape/sprite is initialised from its pointing/heading, but the `updatePointing` option must be `true` for actors' rotations to be updated each tick.
 
-?> Note: the above `update` options only affect agents; the background is always updated if the corresponding options are functions.
-
-The initial size of a shape/sprite which represents an actor is based on the actor's initial radius. Set the `actorRadius` option to `true`/`false` to enable/disable size updates every tick &mdash; or use a function to control size updates per actor per tick. Similarly, the rotation of an actor's shape/sprite is initialised from its pointing/heading, and `actorPointing` is used to control updates.
-
-The initial [drawing order](#drawing-order) for agents in the middle container is based on the agents' `zIndex` properties. Set the `zIndex` option to `true`/`false` to enable/disable reordering every tick &mdash; or use a function (which is passed the simulation) to control reordering per tick.
+The initial [drawing order](#drawing-order) for agents in the middle container is based on the agents' `zIndex` properties. By default, the drawing order is not updated; set the `updateZIndex` option to `true` to update the drawing order every tick. Alternatively, `updateZIndex` can be a function; this is called every tick (and passed the simulation) and the drawing order is updated if the function returns a truthy value.
 
 ## Colors
 
@@ -239,15 +240,15 @@ Use `backgroundTile: true` to tile the background, and `zoneTile: true` (or a fu
 
 ## Particles
 
-Set `backParticles` to `true` to specify that the back container (see [Drawing Order](#drawing-order)) is a <i>particle container</i>. Similarly, use `middleParticles` and `frontParticles` to use particle containers for the middle and front containers respectively.
+Set the `backParticles` option to `true` to specify that the back container (see [Drawing Order](#drawing-order)) is a <i>particle container</i>. The `middleParticles` and `frontParticles` options are used similarly.
 
-Particle containers improve performance, but are only suitable in some cases:
+Using particle containers improves performance, but they are only suitable in some cases:
 
 * All images used by agents in the container must come from the same sprite sheet <i>or</i> all agents must use [basic shapes](#shapes).
 
-* The tints and alphas of agents in a particle container can be updated (as can the radii and pointings of actors), but the sprites cannot be updated &mdash; changes to sprites are ignored.
+* The tints and alphas of agents in a particle container can be updated as normal (as can the radii and pointings of actors), but the sprites cannot be updated.
 
-Instead of setting a particle option such as `backParticles` to `true`, we can use a positive integer: the estimated maximum size required for the container. This need not be accurate since the container will resize if more 'particles' are required. When a particle option is `true`, `10000` is used for the estimated max size.
+Instead of setting a particle option such as `backParticles` to `true`, we can use a positive integer: the estimated maximum size required for the container. This need not be accurate since the container will resize if more 'particles' are required. When a particle option is `true`, `10000` is used as the estimated maximum size.
 
 ## The `visObs` function
 
@@ -302,8 +303,8 @@ While an Atomic Agents simulation will run in any JavaScript environment, Atomic
 
 * The `background` option is `false` by default.
 
-* The `zIndex` options is `false` by default &mdash; so agents in the middle component are drawn in order of their `zIndex` properties initially, but this order is not updated if the `zIndex` properties change or new agents are added.
+* The `updateRadius`, `updatePointing` and `updateZIndex` options are `false` by default.
 
-* In Atomic Agents, the `zIndex` property of squares is `false` by default &mdash; so squares are not drawn in Atomic Agents Vis by default.
+* In Atomic Agents, the `zIndex` property of squares is `NaN` by default &mdash; so squares are not drawn in Atomic Agents Vis by default.
 
-* When using a function for an option, the returned value is used 'as is'. In particular, `undefined` and `null` are not replaced with the option's default value.
+* When an option is a function, the returned value is used 'as is'. In particular, `undefined` and `null` are not replaced with the option's default value.

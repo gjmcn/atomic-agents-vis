@@ -32,7 +32,6 @@ export function vis(sim, options = {}) {
     clearBeforeRender     = true,
     preserveDrawingBuffer = false,
     sprites               = [],
-    zIndex                = false,
     beforeSetup           = null,
     afterSetup            = null,
     beforeTick            = null,
@@ -85,14 +84,15 @@ export function vis(sim, options = {}) {
     actorLineAlign        = 0.5,
     actorFillColor        = 0xffffff,
     actorFillAlpha        = 1,
-    actorPointing         = true,
-    actorRadius           = true,
     basicCircleRadius     = 64,
     advancedCircleScale   = 5,
 
     updateTint            = true,
     updateAlpha           = true,
     updateSprite          = true,
+    updateRadius          = false,
+    updatePointing        = false,
+    updateZIndex          = false
 
   } = options;
 
@@ -143,9 +143,9 @@ export function vis(sim, options = {}) {
     return imgPath ? PIXI.Texture.from(imgPath) : null;
   }
 
-  // is agent included in vis? 
-  function includeAgent(agent) {
-    agent.zIndex || agent.zIndex === 0;
+  // include agent in vis? 
+  function includeAgent({zIndex}) {
+    return typeof zIndex === 'number' && !Number.isNaN(zIndex);
   }
 
 
@@ -204,27 +204,29 @@ export function vis(sim, options = {}) {
 
   function createContainer(particles) {
     return particles
-    ? new PIXI.ParticleContainer(
-        Number.isInteger(particles) ? particles : 10_000,
-        { rotation: true, tint: true, vertices: true, autoResize: true }
-      )
-    : new PIXI.Container();
+      ? new PIXI.ParticleContainer(
+          Number.isInteger(particles) ? particles : 10_000,
+          { rotation: true, tint: true, vertices: true, autoResize: true }
+        )
+      : new PIXI.Container();
   }
   const backContainer   = createContainer(backParticles);
   const middleContainer = createContainer(middleParticles);
   const frontContainer  = createContainer(frontParticles);
 
-  // only middle container use z-index
+  // only middle container uses z-index
   middleContainer.sortableChildren = true;
 
   // get container for agent based on its zIndex
   function getContainer({zIndex}) {
-    if      (zIndex === -Infinity)    return backContainer;
-    else if (zIndex ===  Infinity)    return frontContainer;
-    else if (Number.isFinite(zIndex)) return middleContainer;
-    else                              return backContainer;
+    return zIndex === -Infinity
+      ? backContainer
+      : zIndex === Infinity
+        ? frontContainer
+        : middleContainer;
   }
 
+  
   // ===== squares =============================================================
 
   // add square
@@ -237,8 +239,8 @@ export function vis(sim, options = {}) {
       if (optionValue(sq, squareAdvanced)) {
         info.shpTexture = shapeTexture({
           name: 'rect',
-          color: optionValue(sq, squareFillColor),
-          alpha: optionValue(sq, squareFillAlpha),
+          color:     optionValue(sq, squareFillColor),
+          alpha:     optionValue(sq, squareFillAlpha),
           lineColor: optionValue(sq, squareLineColor),
           lineWidth: optionValue(sq, squareLineWidth),
           lineAlpha: optionValue(sq, squareLineAlpha),
@@ -305,8 +307,8 @@ export function vis(sim, options = {}) {
       if (optionValue(zn, zoneAdvanced)) {
         info.shpTexture = shapeTexture({
           name: 'rect',
-          color: optionValue(zn, zoneFillColor),
-          alpha: optionValue(zn, zoneFillAlpha),
+          color:     optionValue(zn, zoneFillColor),
+          alpha:     optionValue(zn, zoneFillAlpha),
           lineColor: optionValue(zn, zoneLineColor),
           lineWidth: optionValue(zn, zoneLineWidth),
           lineAlpha: optionValue(zn, zoneLineAlpha),
@@ -386,8 +388,8 @@ export function vis(sim, options = {}) {
       if (optionValue(ac, actorAdvanced)) {
         info.shpTexture = shapeTexture({
           name: 'circle',
-          color: optionValue(ac, actorFillColor),
-          alpha: optionValue(ac, actorFillAlpha),
+          color:     optionValue(ac, actorFillColor),
+          alpha:     optionValue(ac, actorFillAlpha),
           lineColor: optionValue(ac, actorLineColor),
           lineWidth: optionValue(ac, actorLineWidth) * advancedCircleScale,
           lineAlpha: optionValue(ac, actorLineAlpha),
@@ -425,20 +427,14 @@ export function vis(sim, options = {}) {
         if (spr.texture !== texture) spr.texture = texture;
       });
     }
-    if (actorRadius) {
-      const actorRadiusIsFunction = typeof actorRadius === 'function';
+    if (updateRadius) {
       updateFunctions.push((spr, ac) => {
-        if (!actorRadiusIsFunction || actorRadius(ac)) {
-          spr.width = spr.height = 2 * ac.radius;
-        }
+        spr.width = spr.height = 2 * ac.radius;
       });
     }
-    if (actorPointing) {
-      const actorPointingIsFunction = typeof actorPointing === 'function';
+    if (updatePointing) {
       updateFunctions.push((spr, ac) => {
-        if (!actorPointingIsFunction || actorPointing(ac)) {
-          spr.rotation = ac.pointing ?? ac.heading();
-        }
+        spr.rotation = ac.pointing ?? ac.heading();
       });
     }
     if (updateTint && typeof actorTint === 'function') {
@@ -477,13 +473,14 @@ export function vis(sim, options = {}) {
     // after setup
     afterSetup?.(sim, app, PIXI);
 
-    // disable future z-index updates?
-    if (!zIndex) middleContainer.sortableChildren = false;
+    // sort on z-index and disable future sorting if appropriate
+    middleContainer.sortChildren();
+    if (!updateZIndex) middleContainer.sortableChildren = false;
 
     // run simulation
     if (run) app.ticker.add(tick);
 
-    // reset loader
+    // destroy loader
     loader.destroy();
 
   }
@@ -525,18 +522,14 @@ export function vis(sim, options = {}) {
     // background: update
     updateBackground?.();
 
-    // update z-index
-    if (typeof zIndex === 'function') {
-      middleContainer.sortableChildren = zIndex(sim);
-    }
-
     // squares: update
     if (updateSquare) squaresMap.forEach(updateSquare);
     
     // zones: remove, add, update
     for (let zn of sim._zonesRemoved) {
       if (zonesMap.has(zn)) {
-        getContainer(zn).removeChild(zonesMap.get(zn).spr);
+        const spr = zonesMap.get(zn).spr;
+        spr.parent.removeChild(spr);
         zonesMap.delete(zn);
       }
     }
@@ -545,11 +538,11 @@ export function vis(sim, options = {}) {
     }
     if (updateZone) zonesMap.forEach(updateZone);
     
-
     // actors: remove, add, update
     for (let ac of sim._actorsRemoved) {
       if (actorsMap.has(ac)) {
-        getContainer(ac).removeChild(actorsMap.get(ac).spr);
+        const spr = actorsMap.get(ac).spr;
+        spr.parent.removeChild(spr);
         actorsMap.delete(ac);
       }
     }
@@ -560,6 +553,11 @@ export function vis(sim, options = {}) {
 
     // after tick
     afterTick?.(sim, app, PIXI);
+
+    // update z-index
+    if (typeof updateZIndex === 'function') {
+      middleContainer.sortableChildren = updateZIndex(sim);
+    }
 
     // update stats
     if (stats) {
