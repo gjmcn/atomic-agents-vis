@@ -168,7 +168,7 @@ See the [Functions and Updates](#functions-and-updates) section for details.
 
 ## Drawing Order
 
-An agent is either never drawn, or is added to one of three <i>containers</i> based on the agent's `zIndex` property:
+An agent is either never drawn, or it is added to one of three <i>containers</i> based on its `zIndex` property when `vis` or `visObs` is called (or if the agent is added to the simulation after it has started, the value of `zIndex` at the end of the tick when the agent is added):
 
 * never drawn, `zIndex`: `NaN` (or any non-number).
 * <i>back container</i>, `zIndex`: `-Infinity`.
@@ -182,7 +182,7 @@ Each tick, the simulation is drawn in the following order:
 1. Agents in the middle container, in ascending order of their `zIndex` properties.
 1. Agents in the front container, in the order they were added to the simulation.
 
-An agent cannot move between containers. If an agent's `zIndex` may change during the simulation, set its `zIndex` to a finite number so that it is added to the middle container. This should be done when creating the agent, or immediately after the agent is created &mdash; i.e. before the visualisation 'sees' the agent for the first time.
+An agent cannot move between containers. If an agent's `zIndex` may change during the simulation, its initial `zIndex` should be a finite number so that the agent is added to the middle container.
 
 ?> Note: once an agent has been added to a container, setting it's `zIndex` to `NaN` does not hide the agent. Instead, use an alpha of `0` to hide the agent.
 
