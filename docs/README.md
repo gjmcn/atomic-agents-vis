@@ -168,21 +168,23 @@ See the [Functions and Updates](#functions-and-updates) section for details.
 
 ## Drawing Order
 
-An agent is either never drawn, or it is added to one of three <i>containers</i> based on its `zIndex` property when `vis` or `visObs` is called (or if the agent is added to the simulation after it has started, the value of `zIndex` at the end of the tick when the agent is added):
+An agent is either never drawn, or it is added to one of three <i>visualisation containers</i> based on its `zIndex` property when `vis` or `visObs` is called (or if the agent is added to the simulation after it has started, the value of `zIndex` at the end of the tick when the agent is added):
 
 * never drawn, `zIndex`: `NaN` (or any non-number).
 * <i>back container</i>, `zIndex`: `-Infinity`.
 * <i>middle container</i>, `zIndex`: finite number.
 * <i>front container</i>, `zIndex`: `Infinity`.
 
+When `vis` or `visObs` is called, agents in the simulation are added to visualisation containers in the order: squares, then zones, then actors. For each agent type, agents are added in the order they were added to the simulation. Each tick, new agents are added to containers using the same rules.
+
 Each tick, the simulation is drawn in the following order:
 
 1. The background.
-1. Agents in the back container, in the order they were added to the simulation.
-1. Agents in the middle container, in ascending order of their `zIndex` properties.
-1. Agents in the front container, in the order they were added to the simulation.
+1. Agents in the back container; drawn in the order they were added to the container.
+1. Agents in the middle container; drawn in ascending order of their `zIndex` properties.
+1. Agents in the front container; drawn in the order they were added to the container.
 
-An agent cannot move between containers. If an agent's `zIndex` may change during the simulation, its initial `zIndex` should be a finite number so that the agent is added to the middle container.
+An agent cannot move between containers. If an agent's position in the drawing order might change during the simulation (i.e. its `zIndex` might change), the agent should be added to the middle container (i.e. its initial `zIndex` should be a finite number).
 
 ?> Note: once an agent has been added to a container, setting it's `zIndex` to `NaN` does not hide the agent. Instead, use an alpha of `0` to hide the agent.
 
