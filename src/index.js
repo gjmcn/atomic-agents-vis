@@ -203,12 +203,16 @@ export function vis(sim, options = {}) {
   // =====  back, middle and front containers ==================================
 
   function createContainer(particles) {
-    return particles
-      ? new PIXI.ParticleContainer(
-          Number.isInteger(particles) ? particles : 10_000,
-          { rotation: true, tint: true, vertices: true, autoResize: true }
-        )
-      : new PIXI.Container();
+    if (particles) {
+      const maxSize = Number.isInteger(particles) ? particles : 10_000;
+      return new PIXI.ParticleContainer(
+        maxSize,
+        { rotation: true, tint: true, vertices: true },
+        maxSize,
+        maxSize
+      );
+    }
+    return new PIXI.Container();
   }
   const backContainer   = createContainer(backParticles);
   const middleContainer = createContainer(middleParticles);

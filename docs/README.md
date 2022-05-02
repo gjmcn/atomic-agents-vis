@@ -240,15 +240,13 @@ Use `backgroundTile: true` to tile the background, and `zoneTile: true` (or a fu
 
 ## Particles
 
-Set the `backParticles` option to `true` to specify that the back container (see [Drawing Order](#drawing-order)) is a <i>particle container</i>. The `middleParticles` and `frontParticles` options are used similarly.
+Each of the back, middle and front containers (see [Drawing Order](#drawing-order)) can be a standard container or a <i>particle container</i>. Particle containers have better performance, but are less flexible: the same shape/image must be used for all agents in the container and this cannot be changed during the simulation. If an [advanced shape](#shapes) is used, its line and fill options cannot vary by agent.
 
-Using particle containers improves performance, but they are only suitable in some cases:
+?> Note: the tints and alphas of agents in a particle container can be updated as normal, as can the radii and pointings of actors.
 
-* All images used by agents in the container must come from the same sprite sheet <i>or</i> all agents must use [basic shapes](#shapes).
+Set the `backParticles` option to `true` to specify that the back container is a particle container. The `middleParticles` and `frontParticles` options are used similarly.
 
-* The tints and alphas of agents in a particle container can be updated as normal (as can the radii and pointings of actors), but the sprites cannot be updated.
-
-Instead of setting a particle option such as `backParticles` to `true`, we can use a positive integer: the estimated maximum size required for the container. This need not be accurate since the container will resize if more 'particles' are required. When a particle option is `true`, `10000` is used as the estimated maximum size.
+Instead of setting a particle option to `true`, we can use a positive integer: the estimated maximum size required for the container. This need not be accurate since the container will resize if more 'particles' are required. When a particle option is `true`, `10000` is used as the estimated maximum size.
 
 ## The `visObs` function
 
