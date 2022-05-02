@@ -1,3 +1,9 @@
+#### 0.2.0 &mdash; May 2, 2022
+
+* Back, middle and front containers &mdash; particle option for each container and middle container sorts on agents' `zIndex`.
+
+* Simplified options.
+
 #### 0.1.2 &mdash; April 24, 2022
 
 * Add `preserveDrawingBuffer` option.
