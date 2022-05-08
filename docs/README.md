@@ -108,6 +108,15 @@ The background is only added if the `background` option is truthy.
 | `squareTint` | `0xffffff` | ✓ |  ✓ | 
 | `squareAlpha` | `1` | ✓ | ✓ |
 | `squareSprite` | `null` | ✓ | ✓ |
+| `squareText` | `null` | ✓ | ✓ |
+| `squareTextPosition` | `center` | ✓ |  |
+| `squareTextPadding` | `3` | ✓ |  |
+| `squareTextAlign` | `center` | ✓ |  |
+| `squareTextTint` | `0x0` | ✓ | ✓ |
+| `squareTextAlpha` | `1` | ✓ | ✓ |
+| `squareFontName` | `null` | ✓ | ✓ |
+| `squareFontSize` | `16` | ✓ | ✓ |
+| `squareLetterSpacing` | `0` | ✓ |  |
 | `squareAdvanced` | `false` | ✓ |  |
 | `squareLineColor` | `0x0` | ✓ |  |
 | `squareLineAlpha` | `1` | ✓ |  |
@@ -123,6 +132,15 @@ The background is only added if the `background` option is truthy.
 | `zoneTint` | `0xffffff` | ✓ | ✓ |
 | `zoneAlpha` | `1` | ✓ | ✓ |
 | `zoneSprite` | `null` | ✓ | ✓ |
+| `zoneText` | `null` | ✓ | ✓ |
+| `zoneTextPosition` | `center` | ✓ |  |
+| `zoneTextPadding` | `3` | ✓ |  |
+| `zoneTextAlign` | `center` | ✓ |  |
+| `zoneTextTint` | `0x0` | ✓ | ✓ |
+| `zoneTextAlpha` | `1` | ✓ | ✓ |
+| `zoneFontName` | `null` | ✓ | ✓ |
+| `zoneFontSize` | `16` | ✓ | ✓ |
+| `zoneLetterSpacing` | `0` | ✓ |  |
 | `zoneAdvanced` | `false` | ✓ |  |
 | `zoneLineColor` | `0x0` | ✓ |  |
 | `zoneLineAlpha` | `1` | ✓ |  |
@@ -139,6 +157,16 @@ The background is only added if the `background` option is truthy.
 | `actorTint` | `0xffffff` | ✓ | ✓ |
 | `actorAlpha` | `1` | ✓ | ✓ |
 | `actorSprite` | `null` | ✓ | ✓ |
+| `actorText` | `null` | ✓ | ✓ |
+| `actorTextRotate` | `false` | ✓ |  |
+| `actorTextMaxWidth` | `0` | ✓ |  |
+| `actorTextAlign` | `center` | ✓ |  |
+| `actorTextTint` | `0x0` | ✓ | ✓ |
+| `actorTextAlpha` | `1` | ✓ | ✓ |
+| `actorFontName` | `null` | ✓ | ✓ |
+| `actorFontSize` | `16` | ✓ | ✓ |
+| `actorFontScale` | `false` | ✓ |  |
+| `actorLetterSpacing` | `0` | ✓ |  |
 | `actorAdvanced` | `false` | ✓ |  |
 | `actorLineColor` | `0x0` | ✓ |  |
 | `actorLineAlpha` | `1` | ✓ |  |
@@ -160,6 +188,11 @@ An actor's rotation is given by its `pointing` property, unless this is `null` o
 | `updateTint` | `true` |  |  |
 | `updateAlpha` | `true` |  |  |
 | `updateSprite` | `true` |  |  |
+| `updateText` | `false` |  |  |
+| `updateTextTint` | `false` |  |  |
+| `updateTextAlpha` | `false` |  |  |
+| `updateFontName` | `false` |  |  |
+| `updateFontSize` | `false` |  |  |
 | `updateRadius` | `false` |  |  |
 | `updatePointing` | `false` |  |  |
 | `updateZIndex` | `false` | ✓ | ✓ |
@@ -190,9 +223,11 @@ An agent cannot move between containers. If an agent's position in the drawing o
 
 ## Functions and Updates
 
-If an option such as `zoneTint` or `actorAlpha` is a function, it is called for each agent of the relevant type. The function is passed the agent (or in the case of background options, the simulation object) and the returned value is used as the option value. Furthermore, the function is called each tick, so the option is updated per agent per tick. If these updates are not required for any agent, the relevant 'update option' (`updateTint`, `updateAlpha` or `updateSprite`) can be set to `false`.
+If an option such as `zoneTint` or `actorAlpha` is a function, it is called for each agent of the relevant type. The function is passed the agent (or in the case of background options, the simulation object) and the returned value is used as the option value. Furthermore, some of these functions will be called each tick, so the option is updated per agent per tick. When an option is a function, but per tick updates are not required for any agent, the relevant update option (`updateTint`, `updateAlpha`, `updateSprite`, `updateText`, `updateTextTint`, `updateTextAlpha`, `updateFontName` or `updateFontSize`) can be set to `false`.
 
-?> Note: the `updateTint`, `updateAlpha` and `updateSprite` options only affect agents; the background is updated each tick if any of `backgroundTint`, `backgroundAlpha` or `backgroundSprite` are functions.
+?> Note: the background is updated each tick if any of `backgroundTint`, `backgroundAlpha` or `backgroundSprite` are functions &mdash; i.e. `updateTint`, `updateAlpha` and `updateSprite` do not affect the background.
+
+?> Note: options for text tint, text alpha, font name and font size are only updated if the relevent agent has (nonempty) text. 
 
 The initial size of an actor's shape/sprite is based on the actor's initial radius. By default, the size of the sprite/shape is not updated when the radius changes; set the `updateRadius` option to `true` to update actors' radii each tick. Similarly, the rotation of an actor's shape/sprite is initialised from its pointing/heading, but the `updatePointing` option must be `true` for actors' rotations to be updated each tick.
 
@@ -239,6 +274,36 @@ The `xxxLineAlign` options specify line alignment: `0` = inner, `0.5` = middle, 
 ## Tiling
 
 Use `backgroundTile: true` to tile the background, and `zoneTile: true` (or a function) to tile zones. Tiles are the same size as simulation squares, so when using a sprite for tiles, the image should be square. Currently, each image-to-tile scale is only computed once during initialisation, so if a sprite is changed during the simulation (e.g. the sprite of a tiled zone is switched from a grass image to a sand image), the new image should have the same size as the old image.
+
+## Text
+
+Atomic Agents Vis uses bitmap text, so one or more bitmap fonts should be loaded in the sprites property. For example:
+
+```js
+AA.vis(sim, {
+  sprites: ['https://cdn.jsdelivr.net/gh/gjmcn/sprites/bitmap-fonts-96/hack.xml'],
+  actorFontName: 'Hack',
+  // ... other options
+});
+```
+
+The text options for squares and zones are identical, but there some differences when it comes to actors. In particular:
+
+* There is no `actorTextPosition` option; the position is always `'middle'`.
+
+* There is no `actorTextPadding` option, but there is `actorTextMaxWidth` which can be used to keep text inside the actor.
+
+* If `actorTextRotate` is `true`, an actor's text is rotated with the actor's shape/sprite. If `actorTextRotate` is `false`, the text is not rotated even if the agent's shape/sprite is.
+
+* If `actorFontScale` is `true`, the unit of `actorFontSize` and `actorLetterSpacing` is the radius of the actor rather than a pixel.
+
+* Text automatically wraps in squares and zones to keep the text width (plus padding) less than the width of the square/zone. In actors, text is wrapped to keep its width less than the `actorTextMaxWidth` of the actor.
+
+?> Note: if an agent's text is `null`, `undefined` or an empty string, no text is shown.
+
+?> Use `'\n'` characters in text for explicit line breaks. 
+
+
 
 ## Particles
 
@@ -303,8 +368,10 @@ While an Atomic Agents simulation will run in any JavaScript environment, Atomic
 
 * The `background` option is `false` by default.
 
-* The `updateRadius`, `updatePointing` and `updateZIndex` options are `false` by default.
+* Many of the update options are `false` by default.
 
 * In Atomic Agents, the `zIndex` property of squares is `NaN` by default &mdash; so squares are not drawn in Atomic Agents Vis by default.
+
+* Each of `squareFontName`, `zoneFontName` and `ActorFontName` has to be set individually (assuming that text is being used with all three agent types).
 
 * When an option is a function, the returned value is used 'as is'. In particular, `undefined` and `null` are not replaced with the option's default value.
