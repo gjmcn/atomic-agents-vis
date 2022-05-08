@@ -290,7 +290,7 @@ export function vis(sim, ops) {
   // ===== background ==========================================================
 
   let addBackground, updateBackground;
-  if (background) {
+  if (ops.background) {
 
     let spr;
 
