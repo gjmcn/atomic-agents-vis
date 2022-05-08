@@ -220,14 +220,16 @@ export function vis(sim, ops) {
       });
       txt.alpha = alpha;
       txt.anchor = new PIXI.Point(0.5, 0.5);
-      if (!optionValue(agent, 'actorTextRotate')) {
-        txt.rotation = -spr.rotation;
-      }
+      const textRotate = optionValue(agent, 'actorTextRotate');
+      if (!textRotate) txt.rotation = -spr.rotation;
       if (ops.updateFontSize) {
         spr.__fontMultipler__ = isFontScale
           ? function() { return this.texture.width / this.width * this.radius }
           : function() { return this.texture.width / this.width };
         spr.__letterSpacing__ = letterSpacing;
+      }
+      if (ops.updatePointing) {
+        spr.__textRotate__ = textRotate;
       }
     }
 
@@ -501,6 +503,8 @@ export function vis(sim, ops) {
       if (ops.updatePointing) {
         updateFunctions.push((spr, ac) => {
           spr.rotation = ac.pointing ?? ac.heading();
+          const txt = spr.children[0];
+          if (txt?.text && !spr.__textRotate__) txt.rotation = -spr.rotation;
         });
       }
     }

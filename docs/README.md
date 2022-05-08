@@ -295,7 +295,7 @@ The text options for squares and zones are identical, but there some differences
 
 * If `actorTextRotate` is `true`, an actor's text is rotated with the actor's shape/sprite. If `actorTextRotate` is `false`, the text is not rotated even if the agent's shape/sprite is.
 
-* If `actorFontScale` is `true`, the unit of `actorFontSize` and `actorLetterSpacing` is the radius of the actor rather than a pixel.
+* If `actorFontScale` is `true`, the unit of `actorFontSize` and `actorLetterSpacing` is the radius of the actor rather than a pixel. Note that if actors' radii are updated during the simulation and `actorFontScale` is `true`, the text and letter spacing will only scale with the actors if `updateFontSize` is `true` and `actorFontSize` is a function &mdash; even if it is just a 'constant function', such as `actorFontSize: ac => 0.5` (i.e. the font size is half the radius).
 
 * Text automatically wraps in squares and zones to keep the text width (plus padding) less than the width of the square/zone. In actors, text is wrapped to keep its width less than the `actorTextMaxWidth` of the actor.
 
