@@ -62,7 +62,6 @@ export function vis(sim, ops) {
     squareTextAlpha:       1,
     squareFontName:        null,
     squareFontSize:        16,
-    squareLetterSpacing:   0,
     squareAdvanced:        false,
     squareLineColor:       0x0,
     squareLineAlpha:       1,
@@ -82,7 +81,6 @@ export function vis(sim, ops) {
     zoneTextAlpha:         1,
     zoneFontName:          null,
     zoneFontSize:          16,
-    zoneLetterSpacing:     0,
     zoneAdvanced:          false,
     zoneLineColor:         0x0,
     zoneLineAlpha:         1,
@@ -104,7 +102,6 @@ export function vis(sim, ops) {
     actorFontName:         null,
     actorFontSize:         16,
     actorFontScale:        false,
-    actorLetterSpacing:    0,
     actorAdvanced:         false,
     actorLineColor:        0x0,
     actorLineAlpha:        1,
@@ -203,7 +200,6 @@ export function vis(sim, ops) {
     const align         = optionValue(agent, `${type}TextAlign`);
     const tint          = optionValue(agent, `${type}TextTint`);
     const alpha         = optionValue(agent, `${type}TextAlpha`);
-    const letterSpacing = optionValue(agent, `${type}LetterSpacing`);
     let txt;
     
     // actor
@@ -215,7 +211,6 @@ export function vis(sim, ops) {
         fontSize: fontSize * xScale * fontScale,
         align,
         tint,
-        letterSpacing: letterSpacing * xScale * fontScale,
         maxWidth: optionValue(agent, 'actorTextMaxWidth') * xScale
       });
       txt.alpha = alpha;
@@ -226,7 +221,6 @@ export function vis(sim, ops) {
         spr.__fontMultipler__ = isFontScale
           ? function() { return this.texture.width / this.width * this.radius }
           : function() { return this.texture.width / this.width };
-        spr.__letterSpacing__ = letterSpacing;
       }
       if (ops.updatePointing) {
         spr.__textRotate__ = textRotate;
@@ -243,7 +237,6 @@ export function vis(sim, ops) {
         fontSize: fontSize * xScale,
         align,
         tint,
-        letterSpacing: letterSpacing * xScale,
         maxWidth: agent.xMax - agent.xMin - 2 * padding
       });
       txt.alpha = alpha;
@@ -278,7 +271,6 @@ export function vis(sim, ops) {
         spr.__fontMultipler__ = isTilingSprite
           ? () => 1
           : function() { return this.texture.width / this.width };
-        spr.__letterSpacing__ = letterSpacing;
       }
     }
 
@@ -548,7 +540,6 @@ export function vis(sim, ops) {
         if (txt?.text) {
           const fontMultiplier = spr.__fontMultipler__();
           txt.fontSize = agentOptions.FontSize(agent) * fontMultiplier;
-          txt.letterSpacing = spr.__letterSpacing__ * fontMultiplier;
         }
       });
     }
