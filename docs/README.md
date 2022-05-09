@@ -163,7 +163,6 @@ The background is only added if the `background` option is truthy.
 | `actorTextAlpha` | `1` | ✓ | ✓ |
 | `actorFontName` | `null` | ✓ | ✓ |
 | `actorFontSize` | `16` | ✓ | ✓ |
-| `actorFontScale` | `false` | ✓ |  |
 | `actorAdvanced` | `false` | ✓ |  |
 | `actorLineColor` | `0x0` | ✓ |  |
 | `actorLineAlpha` | `1` | ✓ |  |
@@ -292,15 +291,15 @@ The text options for squares and zones are identical, but there some differences
 
 * If `actorTextRotate` is `true`, an actor's text is rotated with the actor's shape/sprite. If `actorTextRotate` is `false`, the text is not rotated even if the agent's shape/sprite is.
 
-* If `actorFontScale` is `true`, the unit of `actorFontSize` is the radius of the actor rather than a pixel. Note that if actors' radii are updated during the simulation and `actorFontScale` is `true`, the text and letter spacing will only scale with the actors if `updateFontSize` is `true` and `actorFontSize` is a function &mdash; even if it is just a 'constant function', such as `actorFontSize: ac => 0.5` (i.e. the font size is half the radius).
+* By default, an actor's text automatically scales with the actor's sprite &mdash; preserving the text-to-sprite scale ratio from when the text was first added. To prevent this automatic scaling, actor font size must be updated: `updateFontSize: true` and e.g. `actorFontSize: ac => 16`.
 
-* Text automatically wraps in squares and zones to keep the text width (plus padding) less than the width of the square/zone. In actors, text is wrapped to keep its width less than the `actorTextMaxWidth` of the actor.
+Other notes on text:
 
-?> Note: if an agent's text is `null`, `undefined` or an empty string, no text is shown.
+* If the size of a sprite's texture changes during the simulation (e.g. images of different sizes are used for the same sprite), font sizes for the relevant agent type(s) should be updated &mdash; e.g. `updateFontSize: true, zoneFontSize: ac => 16`.
 
-?> Use `'\n'` characters in text for explicit line breaks. 
+* Text automatically wraps in squares and zones to keep the text width (plus padding) less than the width of the square/zone. In actors, text is wrapped to keep its width less than the `actorTextMaxWidth` of the actor. Use `'\n'` characters in text for explicit line breaks. 
 
-
+* If an agent's text is `null`, `undefined` or an empty string, no text is shown &mdash; and since a text object is only added to a sprite when it is first required, no text object is added.
 
 ## Particles
 
@@ -365,7 +364,7 @@ While an Atomic Agents simulation will run in any JavaScript environment, Atomic
 
 * The `background` option is `false` by default.
 
-* Many of the update options are `false` by default.
+* Many of the [update options](#updates) are `false` by default.
 
 * In Atomic Agents, the `zIndex` property of squares is `NaN` by default &mdash; so squares are not drawn in Atomic Agents Vis by default.
 

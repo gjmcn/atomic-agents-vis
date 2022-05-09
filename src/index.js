@@ -101,7 +101,6 @@ export function vis(sim, ops) {
     actorTextAlpha:        1,
     actorFontName:         null,
     actorFontSize:         16,
-    actorFontScale:        false,
     actorAdvanced:         false,
     actorLineColor:        0x0,
     actorLineAlpha:        1,
@@ -204,11 +203,9 @@ export function vis(sim, ops) {
     
     // actor
     if (type === 'actor') {
-      const isFontScale = optionValue(agent, 'actorFontScale');
-      const fontScale = isFontScale ? agent.radius : 1;
       txt = new PIXI.BitmapText(content, {
         fontName,
-        fontSize: fontSize * xScale * fontScale,
+        fontSize: fontSize * xScale,
         align,
         tint,
         maxWidth: optionValue(agent, 'actorTextMaxWidth') * xScale
@@ -217,11 +214,6 @@ export function vis(sim, ops) {
       txt.anchor = new PIXI.Point(0.5, 0.5);
       const textRotate = optionValue(agent, 'actorTextRotate');
       if (!textRotate) txt.rotation = -spr.rotation;
-      if (ops.updateFontSize) {
-        spr.__fontMultipler__ = isFontScale
-          ? function() { return this.texture.width / this.width * this.radius }
-          : function() { return this.texture.width / this.width };
-      }
       if (ops.updatePointing) {
         spr.__textRotate__ = textRotate;
       }
@@ -267,11 +259,7 @@ export function vis(sim, ops) {
       txt.x = x;
       txt.y = y;
       txt.anchor = new PIXI.Point(xAnchor, yAnchor);
-      if (ops.updateFontSize) {
-        spr.__fontMultipler__ = isTilingSprite
-          ? () => 1
-          : function() { return this.texture.width / this.width };
-      }
+      if (ops.updateFontSize) spr.__isTilingSprite__ = isTilingSprite;
     }
 
     spr.addChild(txt);
@@ -538,8 +526,10 @@ export function vis(sim, ops) {
       updateFunctions.push((spr, agent) => {
         const txt = spr.children[0];
         if (txt?.text) {
-          const fontMultiplier = spr.__fontMultipler__();
-          txt.fontSize = agentOptions.FontSize(agent) * fontMultiplier;
+          txt.fontSize = agentOptions.FontSize(agent) *
+            (agent.type === 'zone' && spr.__isTilingSprite__
+              ? 1
+              : spr.texture.width / spr.width);
         }
       });
     }
