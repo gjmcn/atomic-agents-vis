@@ -240,19 +240,19 @@ export function vis(sim, ops) {
       let y = (agent.y - agent.yMin) * yScale;
       let xAnchor = 0.5;
       let yAnchor = 0.5;
-      if (position.startsWith('north')) {
+      if (position.includes('top')) {
         y = padding * yScale;
         yAnchor = 0;
       }
-      else if (position.startsWith('south')) {
+      else if (position.includes('bottom')) {
         y = (agent.yMax - agent.yMin - padding) * yScale;
         yAnchor = 1;
       }
-      if (position.includes('east')) {
+      if (position.includes('right')) {
         x = (agent.xMax - agent.xMin - padding) * xScale;
         xAnchor = 1;
       }
-      else if (position.includes('west')) {
+      else if (position.includes('left')) {
         x = padding * xScale;
         xAnchor = 0;
       }

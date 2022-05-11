@@ -285,7 +285,7 @@ AA.vis(sim, {
 
 The text options for squares and zones are identical, but there some differences when it comes to actors. In particular:
 
-* There is no `actorTextPosition` option; the position is always `'middle'`.
+* There is no `actorTextPosition` option; the position is always `'center'`.
 
 * There is no `actorTextPadding` option, but there is `actorTextMaxWidth` which can be used to keep text inside the actor.
 
@@ -295,11 +295,15 @@ The text options for squares and zones are identical, but there some differences
 
 Other notes on text:
 
-* If the size of a sprite's texture changes during the simulation (e.g. images of different sizes are used for the same sprite), font sizes for the relevant agent type(s) should be updated &mdash; e.g. `updateFontSize: true, zoneFontSize: ac => 16`.
+* Valid values for the `squareTextAlign` and `zoneTextAlign` options are: `'left'`, `'right'`, `'center'` and  `'justify'`.
+
+* Valid values for the `squareTextPosition` and `zoneTextPosition` options are: `'center'`, `'top'`, `'top-right'`, `'right'`, ..., `'top-left'`. 
 
 * Text automatically wraps in squares and zones to keep the text width (plus padding) less than the width of the square/zone. In actors, text is wrapped to keep its width less than the `actorTextMaxWidth` of the actor. Use `'\n'` characters in text for explicit line breaks. 
 
 * If an agent's text is `null`, `undefined` or an empty string, no text is shown &mdash; and since a text object is only added to a sprite when it is first required, no text object is added.
+
+!> Currently, text does not behave reliably when the size of the parent's texture is changed. For example, if a zone's sprite is changed from one image to another with a different size (or to no sprite so a shape is used).
 
 ## Particles
 
