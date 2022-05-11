@@ -683,16 +683,17 @@ export function vis(sim, ops) {
   }
 
   
-  // =====  load sprite images then call setup =================================
-  // - filter out images that have already been loaded
-  // - urls of spritesheets have '_image' appended to them in the TextureCache
-  
-  const cachedTextureURLs = Object.keys(PIXI.utils.TextureCache);
-  loader.add(ops.sprites.filter(src => {
-    return src.split('.').pop() === 'json'
-      ? !cachedTextureURLs.some(s => s.slice(0, src.length) === src)
-      : !PIXI.utils.TextureCache[src];
-  })).load(setup);
+  // =====  load sprite files then call setup ==================================
+
+  function getStem(s) {
+    const dotIndex = s.lastIndexOf('.');
+    return dotIndex === -1 ? s : s.slice(0, dotIndex);
+  }
+  const cachedTextureStems =
+    new Set(Object.keys(PIXI.utils.TextureCache).map(getStem));
+  loader
+    .add(ops.sprites.filter(src => !cachedTextureStems.has(getStem(src))))
+    .load(setup);
   return app;
 
 }
