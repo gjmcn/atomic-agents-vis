@@ -78,7 +78,7 @@ Before and after functions are passed the simulation, the PIXI app and the PIXI 
 
 ```js
 vis(new Simulation(), {
-  sprites: ['../bitmap-text/some-font.xml'],  // use sprites to load bitmap text
+  sprites: ['../bitmap-text/some-font.xml'],
   afterSetup: (sim, app, PIXI) => {
     app.stage.addChild(new PIXI.BitmapText('Hello', {fontName: 'SomeFont'}));
   }
@@ -295,9 +295,9 @@ The text options for squares and zones are identical, but there some differences
 
 Other notes on text:
 
-* Valid values for the `squareTextAlign` and `zoneTextAlign` options are: `'left'`, `'right'`, `'center'` and  `'justify'`.
+* Valid values for the `squareTextAlign`, `zoneTextAlign` and `actorTextAlign` options are: `'left'`, `'right'`, `'center'` and  `'justify'`.
 
-* Valid values for the `squareTextPosition` and `zoneTextPosition` options are: `'center'`, `'top'`, `'top-right'`, `'right'`, ..., `'top-left'`. 
+* Valid values for the `squareTextPosition` and `zoneTextPosition` options are: `'center'`, `'top'`, `'top-right'`, `'right'`, `'bottom-right'`, `'bottom'`, `'bottom-left'`, `'left'` and `'top-left'`. 
 
 * Text automatically wraps in squares and zones to keep the text width (plus padding) less than the width of the square/zone. In actors, text is wrapped to keep its width less than the `actorTextMaxWidth` of the actor. Use `'\n'` characters in text for explicit line breaks. 
 
@@ -307,7 +307,18 @@ Other notes on text:
 
 ## Particles
 
-Each of the back, middle and front containers (see [Drawing Order](#drawing-order)) can be a standard container or a <i>particle container</i>. Particle containers have better performance, but are less flexible: the same shape/image must be used for all agents in the container and this cannot be changed during the simulation. If an [advanced shape](#shapes) is used, its line and fill options cannot vary by agent.
+Each of the back, middle and front containers (see [Drawing Order](#drawing-order)) can be a standard container or a <i>particle container</i>. Particle containers have better performance, but are less flexible:
+
+* Image/shape restictions:
+
+  * If using images, all agents in the container must use the same image, or use images from the same sprite sheet &mdash; in which case an agent's image <i>can </i> be changed durnig the simulation.
+  
+  * If not using images, all agents in the container will be of the same shape &mdash; which is typically only appropriate when all agents in the container (or at least those that are drawn) are of the same type. If an [advanced shape](#shapes) is used, its
+ line and fill options cannot vary by agent.
+
+* [Tiling](#tiling) cannot be used with agents in a particle container.
+
+* [Text](#text) cannot be used with agents in a particle container.
 
 ?> Note: the tints and alphas of agents in a particle container can be updated as normal, as can the radii and pointings of actors.
 
