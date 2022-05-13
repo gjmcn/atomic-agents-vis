@@ -1,3 +1,7 @@
+#### 0.3.0 &mdash; May 13, 2022
+
+* Add text.
+
 #### 0.2.0 &mdash; May 2, 2022
 
 * Back, middle and front containers &mdash; particle option for each container and middle container sorts on agents' `zIndex`.

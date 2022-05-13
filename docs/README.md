@@ -253,13 +253,11 @@ For convenience, Atomic Agents Vis exports `colors`: an array of 9 categorical c
 
 To use a sprite sheet, preload it with `sprites` (e.g. `sprites: ['../images/big-cats.json']` ) and use a sprite name as the appropriate sprite option (e.g. `actorSprite: 'lion.png'`).
 
-?> Note: there are simple online tools for creating sprite sheets (e.g. [Free texture packer](https://free-tex-packer.com/app/)) and bitmap fonts (e.g. [SnowBamboo](https://snowb.org/)) that PixiJS can use.
+?> Note: [this repository](https://github.com/gjmcn/sprites) has some useful images and sprite sheets to get started. New sprite sheets can be created with free online tools such as [Free texture packer](https://free-tex-packer.com/app/).
 
 To create sprites from an individual image, preload the image with `sprites` (e.g. `sprites: ['../images/lion.png']`) and use the image's path as the appropriate sprite option (e.g. `actorSprite: '../images/lion.png'`). An image can be used without preloading it, but sprites that use the image will 'pop in' when the image loads. Images that are used for tiled sprites must be preloaded for the image-to-tile scale to be computed correctly.
 
 An actor with pointing/heading `0` faces the viewer's right, so images that will be used to indicate actors' pointings/headings should also face right.
-
-[This repository](https://github.com/gjmcn/sprites) has some useful images and sprite sheets.
 
 ### Shapes
 
@@ -273,7 +271,7 @@ Use `backgroundTile: true` to tile the background, and `zoneTile: true` (or a fu
 
 ## Text
 
-Atomic Agents Vis uses bitmap text, so one or more bitmap fonts should be loaded in the sprites property. For example:
+Atomic Agents Vis uses bitmap text, so one or more bitmap fonts should be loaded in the `sprites` property. For example:
 
 ```js
 AA.vis(sim, {
@@ -283,15 +281,17 @@ AA.vis(sim, {
 });
 ```
 
-The text options for squares and zones are identical, but there some differences when it comes to actors. In particular:
+?> Note: [this repository](https://github.com/gjmcn/sprites) has some bitmap fonts to get started. New bitmap fonts can be generated from font files using free online tools such as [SnowBamboo](https://snowb.org/).
+
+The text options for squares and zones are identical, but there are some differences when it comes to actors. In particular:
 
 * There is no `actorTextPosition` option; the position is always `'center'`.
 
 * There is no `actorTextPadding` option, but there is `actorTextMaxWidth` which can be used to keep text inside the actor.
 
-* If `actorTextRotate` is `true`, an actor's text is rotated with the actor's shape/sprite. If `actorTextRotate` is `false`, the text is not rotated even if the agent's shape/sprite is.
+* If `actorTextRotate` is `true`, an actor's text is rotated with the actor's shape/sprite.
 
-* By default, an actor's text automatically scales with the actor's sprite &mdash; preserving the text-to-sprite scale ratio from when the text was first added. To prevent this automatic scaling, actor font size must be updated: `updateFontSize: true` and e.g. `actorFontSize: ac => 16`.
+* By default, an actor's text scales with the actor's shape/sprite &mdash; preserving the text-to-sprite scale ratio from when the text was first added. To prevent this automatic scaling, actor font size must be updated: `updateFontSize: true` and e.g. `actorFontSize: ac => 16`.
 
 Other notes on text:
 
@@ -303,7 +303,7 @@ Other notes on text:
 
 * If an agent's text is `null`, `undefined` or an empty string, no text is shown &mdash; and since a text object is only added to a sprite when it is first required, no text object is added.
 
-!> Currently, text does not behave reliably when the size of the parent's texture is changed. For example, if a zone's sprite is changed from one image to another with a different size (or to no sprite so a shape is used).
+!> Currently, text does not behave reliably when the size of the parent's texture is changed. For example, when a zone's sprite is changed to an image of a different size (or to no sprite so a shape is used).
 
 ## Particles
 
@@ -311,14 +311,14 @@ Each of the back, middle and front containers (see [Drawing Order](#drawing-orde
 
 * Image/shape restictions:
 
-  * If using images, all agents in the container must use the same image, or use images from the same sprite sheet &mdash; in which case an agent's image <i>can </i> be changed durnig the simulation.
+  * When using images, all agents in the container must use the same image, or use images from the same sprite sheet &mdash; in which case an agent's image <i>can </i> be changed durnig the simulation.
   
-  * If not using images, all agents in the container will be of the same shape &mdash; which is typically only appropriate when all agents in the container (or at least those that are drawn) are of the same type. If an [advanced shape](#shapes) is used, its
- line and fill options cannot vary by agent.
+  * When not using images, all agents in the container will be of the same shape &mdash; which is typically only appropriate when all agents in the container (or at least those that are drawn) are of the same type. If an [advanced shape](#shapes) is used, its
+ line and fill options <i>cannot</i> vary by agent.
 
-* [Tiling](#tiling) cannot be used with agents in a particle container.
+* [Tiling](#tiling) <i>cannot</i> be used with agents in a particle container.
 
-* [Text](#text) cannot be used with agents in a particle container.
+* [Text](#text) <i>cannot</i> be used with agents in a particle container.
 
 ?> Note: the tints and alphas of agents in a particle container can be updated as normal, as can the radii and pointings of actors.
 
@@ -379,7 +379,7 @@ While an Atomic Agents simulation will run in any JavaScript environment, Atomic
 
 * The `background` option is `false` by default.
 
-* Many of the [update options](#updates) are `false` by default.
+* Many [update options](#updates) are `false` by default.
 
 * In Atomic Agents, the `zIndex` property of squares is `NaN` by default &mdash; so squares are not drawn in Atomic Agents Vis by default.
 
