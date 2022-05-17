@@ -1,3 +1,15 @@
+#### 0.4.0 &mdash; ??????
+
+* Add interaction options.
+
+* Reduce number of update options &mdash; and rename remaining options to match Atomic Agents.
+
+* Update options `true` by default.
+
+* Simplify updates code.
+
+* Use default option values when callbacks return nullish values.
+
 #### 0.3.0 &mdash; May 13, 2022
 
 * Add text.

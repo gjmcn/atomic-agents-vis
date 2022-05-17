@@ -24,14 +24,17 @@ export const defaults = {
     beforeTick: null,
     afterTick: null,
     finished: null,
-    updateRadius: false,
-    updatePointing: false,
-    updateZIndex: false,
+    updateRadii: true,
+    updatePointings: true,
+    updateDrawOrder: true,
+    basicCircleRadius: 64,
+    advancedCircleScale: 5
   },
 
   simulation: {
     baseColor: 0x808080,
     baseAlpha: 1,
+    background: false,
     tint: 0xffffff,
     alpha: 1,
     sprite: null,
@@ -99,9 +102,7 @@ export const defaults = {
     lineWidth: 1,
     lineAlign: 0.5,
     fillColor: 0xffffff,
-    fillAlpha: 1,
-    basicCircleRadius: 64,
-    advancedCircleScale: 5
+    fillAlpha: 1
   }
 
 };
