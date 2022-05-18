@@ -23,7 +23,7 @@ export function vis(sim, visOps = {}) {
 
   // ===== local helper functions ==============================================
 
-  // evaluate option - which may be a function, value or absent
+  // evaluate agent option - which may be a function, value or absent
   function optionValue(agent, optionName) {
     if (agent._visUpdates?.has(optionName)) {
       return agent._visUpdates.get(optionName)(agent) ??
@@ -34,7 +34,7 @@ export function vis(sim, visOps = {}) {
     }
   }
 
-  // evaluate background option - which may be a function, value or absent
+  // evaluate simulation option - which may be a function, value or absent
   function simulationOptionValue(optionName) {
     if (sim._visUpdates?.has(optionName)) {
       return sim._visUpdates.get(optionName)(sim) ??
@@ -157,7 +157,7 @@ export function vis(sim, visOps = {}) {
 
   // ===== add event listeners to sprites ======================================
 
-  // agent will be the simulaiton if spr is the background
+  // agent will be the simulation if spr is the background
   function addInteraction(agent, spr) {
     if (agent._interaction) {
       spr.interactive = true;
@@ -218,15 +218,15 @@ export function vis(sim, visOps = {}) {
         }
       };
       updateBackground = function() {
-        for (let key of sim._visUpdates.keys()) {
-          backgroundUpdateFunctions[key](f)
+        for (let [key, f] of sim._visUpdates) {
+          backgroundUpdateFunctions[key](f);
         }
       }
     }
 
   }
 
-  
+
   // ===== containers, agent maps and update sets ==============================
 
   function createContainer(particles) {
@@ -270,7 +270,7 @@ export function vis(sim, visOps = {}) {
 
   const updateSets = {
     square: new Set(),
-    zone:   new Set(),
+    zone:   new Set()
   };
 
   
@@ -286,8 +286,8 @@ export function vis(sim, visOps = {}) {
     }
     const info = {};
     const imgPath = optionValue(agent, 'sprite');
-    info.imgTexture = imgPath ? PIXI.Texture.from(imgPath) : null;
-    if (!info.imgTexture || agent._visUpdates?.has('sprite')) {    
+    const imgTexture = imgPath ? PIXI.Texture.from(imgPath) : null;
+    if (!imgTexture || agent._visUpdates?.has('sprite')) {    
       if (optionValue(agent, 'advanced')) {
         info.shpTexture = shapeTexture({
           name: 'rect',
@@ -308,12 +308,12 @@ export function vis(sim, visOps = {}) {
     }
     let spr;
     if (type === 'square') {
-      spr = new Sprite(info.imgTexture || info.shpTexture);
+      spr = new Sprite(imgTexture || info.shpTexture);
       spr.width = sim.gridStep;
       spr.height = sim.gridStep;
     }
     else {  // zone
-      const texture = info.imgTexture || info.shpTexture;
+      const texture = imgTexture || info.shpTexture;
       if (useTiling) {
         spr = TilingSprite.from(texture, {width: w, height: h});
         spr.tileScale.x = sim.gridStep / texture.width;
@@ -350,8 +350,8 @@ export function vis(sim, visOps = {}) {
   function addActor(ac) {
     const info = {};
     const imgPath = optionValue(ac, 'sprite');
-    info.imgTexture = imgPath ? PIXI.Texture.from(imgPath) : null;
-    if (!info.imgTexture || ac._visUpdates?.has('sprite')) {
+    const imgTexture = imgPath ? PIXI.Texture.from(imgPath) : null;
+    if (!imgTexture || ac._visUpdates?.has('sprite')) {
       if (optionValue(ac, 'advanced')) {
         info.shpTexture = shapeTexture({
           name: 'circle',
@@ -368,7 +368,7 @@ export function vis(sim, visOps = {}) {
         info.shpTexture = basicCircle;
       }
     }
-    const spr = new Sprite(info.imgTexture || info.shpTexture);
+    const spr = new Sprite(imgTexture || info.shpTexture);
     spr.anchor.set(0.5, 0.5);
     spr.position.set(ac.x, ac.y);
     spr.width = spr.height = 2 * ac.radius;
@@ -387,10 +387,10 @@ export function vis(sim, visOps = {}) {
 
   const agentUpdateFunctions = {
     tint: (agent, spr, f) => {
-      return spr.tint = f(agent) ?? defaults[agent.type].tint;
+      spr.tint = f(agent) ?? defaults[agent.type].tint;
     },
     alpha: (agent, spr, f) => {
-      return spr.alpha = f(agent) ?? defaults[agent.type].alpha;
+      spr.alpha = f(agent) ?? defaults[agent.type].alpha;
     },
     sprite: (agent, spr, f) => {
       const imgPath = f(agent) ?? defaults[agent.type].sprite;
@@ -432,22 +432,21 @@ export function vis(sim, visOps = {}) {
       if (txt?.text) txt.fontName = f(agent) ?? defaults[agent.type].fontName;
     }
   };
-
   function updateAgent(agent, {spr}) {
     if (agent.type === 'actor') {
       spr.position.set(agent.x, agent.y);
-      if (agent._visUpdates) {
-        agent.hitArea.x = agent.x;
-        agent.hitArea.y = agent.y;
+      if (agent._interaction) {
+        spr.hitArea.x = agent.x;
+        spr.hitArea.y = agent.y;
       }
       if (visOps.updateRadii) {
         spr.width = spr.height = 2 * agent.radius;
-        if (agent._visUpdates) {
-          agent.hitArea.radius = agent.radius;
+        if (agent._interaction) {
+          spr.hitArea.radius = agent.radius;
         }
       }
       if (visOps.updatePointings) {
-        spr.rotation = ac.pointing ?? ac.heading();
+        spr.rotation = agent.pointing ?? agent.heading();
         const txt = spr.children[0];
         if (txt?.text &&
             !(agent._vis.textRotate ?? defaults.actor.textRotate)) {
@@ -460,7 +459,7 @@ export function vis(sim, visOps = {}) {
     }
   }
 
-
+  
   // ===== setup function ======================================================
 
   function setup() {
