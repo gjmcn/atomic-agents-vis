@@ -41,9 +41,11 @@ The `vis` and `visObs` functions automatically run the simulation; do not use `s
 
 The simulation can be paused and unpaused as normal: `sim.pause(true)`, `sim.pause(false)`. When the simulation is paused, the visualisation is frozen and the [`beforeTick`](#before-and-after-functions) and [`afterTick`](#before-and-after-functions) functions are not called. When the simulation is unpaused, it automatically resumes.
 
-## Options
+While an Atomic Agents simulation will run in any JavaScript environment, Atomic Agents Vis can only be used in the browser &mdash; or a browser-like environment like [Electron](https://www.electronjs.org/).
 
-### Top Level
+## Vis Options
+
+The `options` object passed to `vis` or `visObs` can include the following:
 
 | Option       | Default   | Description |
 |:-------------|:-----------|:------------|
@@ -52,148 +54,177 @@ The simulation can be paused and unpaused as normal: `sim.pause(true)`, `sim.pau
 | `maxFPS` | `0` (no limit) | Max frames per second. If used, should be one of `10`, `12`, `15`, `20`, `30` or `60`. |
 | `stats` | `false` | Show basic stats: number of squares, zones and actors, and frames per second. Updated every 5 frames &mdash; the frames per second is the mean for the last 5 frames. |
 | `cleanup` | `false` | Cleanup the visualisation when the simulation finishes: remove stats, stop the PIXI app, 'lose' its WebGL context, destroy the app, remove the canvas.<br><br>__Note:__ textures and base textures are not destroyed when `cleanup` is used &mdash; they are reused by subsequent visualisations. |
-| `resolution` | <code>window.devicePixelRatio \|\| 1</code> | Resolution / device pixel ratio of the renderer. |
+| `resolution` | `window.devicePixelRatio`<br>or `1`</code> | Resolution / device pixel ratio of the renderer. |
 | `autoDensity` | `true` | Resize renderer view in CSS pixels to allow for resolutions other than 1? |
 | `antialias` | `true` | Antialias? |
 | `clearBeforeRender` | `true` | Clear the canvas before each render pass? |
 | `preserveDrawingBuffer` | `false` | Enable drawing buffer preservation? |
-| `sprites` | `[]` | Paths/URLs to sprite files. Files that have already been loaded (i.e. where the texture already exists) are skipped. |
+| `images` | `[]` | Paths/URLs to image, sprite sheet and bitmap font files. Files that have already been loaded (i.e. where the texture already exists) are skipped. |
 | `backParticles` | `false` | Back container is a particle container? &mdash; see [Particles](#particles) |
 | `middleParticles` | `false` | Middle container is a particle container? &mdash; see [Particles](#particles) |
 | `frontParticles` | `false` | Front container is a particle container? &mdash; see [Particles](#particles) |
+| `basicCircleRadius` | `64` | Radius of the default circle texture used for actors. The higher the value, the smoother the actors' circles. |
+| `advancedCircleScale` | `5` | How many times larger each circle texture is than its actor when using [advanced shapes](#advanced-shape-options). The higher the value, the smoother the actors' circles. |
+| `updateRadii` | `true` | If `false`, the size of actors' shapes/images are not updated during the simulation. |
+| `updatePointings` | `true` | If `false`, the rotations of actors' shapes/images are not updated during the simulation. |
+| `updateDrawOrder` | `true` | If `false`, the drawing order of contents in the middle container is not updated during the simulation. If `updateDrawOrder` is a function, it is called each tick (and passed the simulation object); if it returns a truthy value, the drawing order for the middle container is updated that tick. |
+| `beforeSetup` | `null` | Function to call before setup (before background added). The function is passed the simulation object, the PIXI app and the PIXI object. |
+| `afterSetup` | `null` | Function call to after setup (after existing agents added). The function is passed the simulation object, the PIXI app and the PIXI object. |
+| `beforeTick` | `null` | Function to call before each tick (before `sim.beforeTick()`). The function is passed the simulation object, the PIXI app and the PIXI object. <br><br>__Note:__ pausing or ending the simulation from `beforeTick` may cause issues; pause or end the simulation from inside the simulation itself (e.g. using `sim.beforeTick`), or from the `afterTick` function. |
+| `afterTick` | `null` | Function to call after each tick (after `sim.afterTick()`). The function is passed the simulation object, the PIXI app and the PIXI object. |
+| `finished` | `null` | Function to call after simulation ends. The function is passed the simulation object, the PIXI app and the PIXI object. |
 
 To avoid clearing the canvas between frames, use `clearBeforeRender: false` <i>and</i> `preserveDrawingBuffer: true`. In this case, [`baseColor`](#base-and-background) and [`baseAlpha`](#base-and-background) are ignored; if there is no [background](#base-and-background), actors leave permanent trails; if there is a background with alpha less than 1, actors leave fading trails. Note that 'trails' are from previous frames so are covered by anything drawn in the current frame. Also, a background with alpha less than one will not appear faint since the background will keep being drawn on top of itself.
 
-### Before and After Functions
-
-| Option       | Default   | Description |
-|:--------------|:-----------|:------------|
-| `beforeSetup` | `null` | Function to call before setup (before background added). |
-| `afterSetup` | `null` | Function call to after setup (after existing agents added). |
-| `beforeTick` | `null` | Function to call before each tick (before `sim.beforeTick()`). <br><br>__Note:__ pausing or ending the simulation from `beforeTick` may cause issues; pause or end the simulation from inside the simulation itself (e.g. using `sim.beforeTick`), or from the `afterTick` function. |
-| `afterTick` | `null` | Function to call after each tick (after `sim.afterTick()`). |
-| `finished` | `null` | Function to call after simulation ends. |
-
-Before and after functions are passed the simulation, the PIXI app and the PIXI object. The before and after functions can be used to add extra content with Pixi.JS. For example, some bitmap text:
+Options such as `afterSetup` can be used to add extra content with PixiJS. For example, some bitmap text:
 
 ```js
 vis(new Simulation(), {
-  sprites: ['../bitmap-text/some-font.xml'],
+  images: ['../bitmap-text/some-font.xml'],
   afterSetup: (sim, app, PIXI) => {
     app.stage.addChild(new PIXI.BitmapText('Hello', {fontName: 'SomeFont'}));
   }
 });
 ```
 
-### Base and Background
+## Background and Agent Options
 
-The <i>base</i> is below the 'background'. Use `baseColor` for a simple colored background that does not change.
+Background and agent options are set on the simulation/agent directly using the `vis` method. For example:
 
-The background is only added if the `background` option is truthy. 
+```js
+// simulation with tiled grass image for the background
+const sim = new AA.Simulation().vis({
+  background: true,
+  image: 'images/grass.png',
+  tile: true
+})
 
-| Option       | Default   | Function allowed? | Called each tick? |
-|:--------------|:-----------|:------------:|:------------:|
-| `baseColor` | `0x808080` |  |  |
-| `baseAlpha` | `1` |  |  |
-| `background` | `false` |  |
-| `backgroundTint` | `0xffffff` | ✓ | ✓ |
-| `backgroundAlpha` | `1` | ✓ | ✓ |
-| `backgroundSprite` | `null` | ✓ | ✓ |
-| `backgroundTile` | `false` |  |
+// single actor with red tint
+new AA.Actor({
+  x: 100,
+  y: 100,
+  radius: 50,
+}).vis({
+  tint: 0xff0000
+}).addTo(sim);
 
-### Squares
+// run and visualise
+AV.vis(sim, {});
+```
 
-| Option       | Default   | Function allowed? | Called each tick? |
-|:--------------|:-----------|:------------:|:------------:|
-| `squareTint` | `0xffffff` | ✓ |  ✓ | 
-| `squareAlpha` | `1` | ✓ | ✓ |
-| `squareSprite` | `null` | ✓ | ✓ |
-| `squareText` | `null` | ✓ | ✓ |
-| `squareTextPosition` | `center` | ✓ |  |
-| `squareTextPadding` | `3` | ✓ |  |
-| `squareTextAlign` | `center` | ✓ |  |
-| `squareTextTint` | `0x0` | ✓ | ✓ |
-| `squareTextAlpha` | `1` | ✓ | ✓ |
-| `squareFontName` | `null` | ✓ | ✓ |
-| `squareFontSize` | `16` | ✓ | ✓ |
-| `squareAdvanced` | `false` | ✓ |  |
-| `squareLineColor` | `0x0` | ✓ |  |
-| `squareLineAlpha` | `1` | ✓ |  |
-| `squareLineWidth` | `1` | ✓ |  |
-| `squareLineAlign` | `0.5` | ✓ |  |
-| `squareFillColor` | `0xffffff` | ✓ |  |
-| `squareFillAlpha` | `1` | ✓ |  |
+The background and agent options are summarised below. Additional details are given in later sections.
 
-### Zones
+?> Note: an actor's rotation is given by its `pointing` property, unless this is `null` or `undefined`, in which case the value returned by the actor's `heading` method is used.
 
-| Option       | Default   | Function allowed? | Called each tick? |
-|:--------------|:-----------|:------------:|:------------:|
-| `zoneTint` | `0xffffff` | ✓ | ✓ |
-| `zoneAlpha` | `1` | ✓ | ✓ |
-| `zoneSprite` | `null` | ✓ | ✓ |
-| `zoneText` | `null` | ✓ | ✓ |
-| `zoneTextPosition` | `center` | ✓ |  |
-| `zoneTextPadding` | `3` | ✓ |  |
-| `zoneTextAlign` | `center` | ✓ |  |
-| `zoneTextTint` | `0x0` | ✓ | ✓ |
-| `zoneTextAlpha` | `1` | ✓ | ✓ |
-| `zoneFontName` | `null` | ✓ | ✓ |
-| `zoneFontSize` | `16` | ✓ | ✓ |
-| `zoneAdvanced` | `false` | ✓ |  |
-| `zoneLineColor` | `0x0` | ✓ |  |
-| `zoneLineAlpha` | `1` | ✓ |  |
-| `zoneLineWidth` | `1` | ✓ |  |
-| `zoneLineAlign` | `0.5` | ✓ |  |
-| `zoneFillColor` | `0xffffff` | ✓ |  |
-| `zoneFillAlpha` | `1` | ✓ |  |
-| `zoneTile` | `false` | ✓ |  |
+### Basic
 
-### Actors
+| Option       | Simulation | Square | Zone | Actor | Update |
+|:-------------|:-----------|:-------|:-----|:------|:------:|
+| `baseColor` | `0x808080` |  |  |  |  |
+| `baseAlpha` | `1` |  |  |  |  |
+| `background` | `false` |  |  |  |  |
+| `tint` | `0xffffff` | `0xffffff` | `0xffffff` | `0xffffff` | ✓ |
+| `alpha` | `1` | `1` | `1` | `1` | ✓ |
+| `image` | `null` | `null` | `null` | `null` | ✓ |
+| `tile` | `false` |  | `false` |  |  |
 
-| Option       | Default   | Function allowed? | Called each tick? |
-|:--------------|:-----------|:------------:|:------------:|
-| `actorTint` | `0xffffff` | ✓ | ✓ |
-| `actorAlpha` | `1` | ✓ | ✓ |
-| `actorSprite` | `null` | ✓ | ✓ |
-| `actorText` | `null` | ✓ | ✓ |
-| `actorTextRotate` | `false` | ✓ |  |
-| `actorTextMaxWidth` | `0` | ✓ |  |
-| `actorTextAlign` | `center` | ✓ |  |
-| `actorTextTint` | `0x0` | ✓ | ✓ |
-| `actorTextAlpha` | `1` | ✓ | ✓ |
-| `actorFontName` | `null` | ✓ | ✓ |
-| `actorFontSize` | `16` | ✓ | ✓ |
-| `actorAdvanced` | `false` | ✓ |  |
-| `actorLineColor` | `0x0` | ✓ |  |
-| `actorLineAlpha` | `1` | ✓ |  |
-| `actorLineWidth` | `1` | ✓ |  |
-| `actorLineAlign` | `0.5` | ✓ |  |
-| `actorFillColor` | `0xffffff` | ✓ |  |
-| `actorFillAlpha` | `1` | ✓ |  |
-| `basicCircleRadius` | `64` |  |  |
-| `advancedCircleScale` | `5` |  |  |
+<p style="font-size: 0.9em; margin-top: -0.9em;">(Default values shown; empty cell indicates that option not used.)</p>
 
-An actor's rotation is given by its `pointing` property, unless this is `null` or `undefined`, in which case the value returned by the actor's `heading` method is used.
+The <i>base</i> is below the 'background'. Use `baseColor` for a simple colored background that does not change. The background is only added if the `background` option is truthy.
 
-`basicCircleRadius` is the radius of the default circle texture used for actors. `advancedCircleScale` is how many times larger each circle texture is than its actor when using [advanced shapes](#advanced-shape-options). Increasing these values gives smoother edges to the circles.
+The "Update" columns indicate if an option can be a function &mdash; in which case the function is called each tick and is passed the agent (or simulation object), and the returned value is used for the option &mdash; if the value is `null` or `undefined`, the default option value is used. If an option is 'statndard' function (i.e. not an arrow function), `this` also refers to the agent/simulation inside the function.
 
-### Updates
+### Text
 
-| Option       | Default   | Function allowed? | Called each tick? |
-|:--------------|:-----------|:------------:|:------------:|
-| `updateTint` | `true` |  |  |
-| `updateAlpha` | `true` |  |  |
-| `updateSprite` | `true` |  |  |
-| `updateText` | `false` |  |  |
-| `updateTextTint` | `false` |  |  |
-| `updateTextAlpha` | `false` |  |  |
-| `updateFontName` | `false` |  |  |
-| `updateFontSize` | `false` |  |  |
-| `updateRadius` | `false` |  |  |
-| `updatePointing` | `false` |  |  |
-| `updateZIndex` | `false` | ✓ | ✓ |
+| Option       | Square | Zone | Actor | Update |
+|:-------------|:-------|:-------|:-----|:------|
+| `text` | `null` | `null` | `null` | ✓ |
+| `textPosition` | `'center'` | `'center'` |  |  |
+| `textPadding` | `3` | `3` |  |  |
+| `textRotate` |  |  | `false` |  |
+| `textMaxWidth` |  |  | `0` |  |
+| `textAlign` | `'center'` | `'center'` | `'center'` |  |
+| `textTint` | `0x0` | `0x0` | `0x0` | ✓ |
+| `textAlpha` | `1` | `1` | `1` | ✓ |
+| `fontName` | `null` | `null` | `null` | ✓ |
+| `fontSize` | `16` | `16` | `16` | ✓ |
 
-See the [Functions and Updates](#functions-and-updates) section for details.
+<p style="font-size: 0.9em; margin-top: -0.9em">(Default values shown; empty cell indicates that option not used; see <a src="#basic">Basic Options</a> for an explanation of "Update" column.)</p>
+
+Atomic Agents Vis uses bitmap text, so one or more bitmap fonts should be preloaded using the `images` option. For example:
+
+```js
+AV.vis(sim, {
+  images: ['https://cdn.jsdelivr.net/gh/gjmcn/sprites/bitmap-fonts-96/hack.xml'],
+  // ... other options
+});
+```
+
+__Notes:__
+
+* [This repository](https://github.com/gjmcn/sprites) has some bitmap fonts to get started. New bitmap fonts can be generated from font files using free online tools such as [SnowBamboo](https://snowb.org/).
+
+* The `fontName` option must be used with each agent that has text.
+
+* If `actorTextRotate` is `true`, an actor's text is rotated with the actor's shape/image.
+
+* By default, an actor's text scales with the actor's shape/image &mdash; preserving the text-to-actor scale ratio from when the text was first added. To prevent this automatic scaling, actor font size must be updated: `updateFontSize: true` and e.g. `actorFontSize: ac => 16`.
+
+* Valid values for the `squareTextAlign`, `zoneTextAlign` and `actorTextAlign` options are: `'left'`, `'right'`, `'center'` and  `'justify'`.
+
+* Valid values for the `squareTextPosition` and `zoneTextPosition` options are: `'center'`, `'top'`, `'top-right'`, `'right'`, `'bottom-right'`, `'bottom'`, `'bottom-left'`, `'left'` and `'top-left'`. 
+
+* Text automatically wraps in squares and zones to keep the text width (plus padding) less than the width of the square/zone. In actors, text is wrapped to keep its width less than the `actorTextMaxWidth` of the actor. Use `'\n'` characters in text for explicit line breaks. 
+
+* If an agent's text is `null`, `undefined` or an empty string, no text is shown &mdash; and since a text object is only added when it is first required, no text object is added.
+
+* At a given tick, the `textTint`, `textAlpha`, `fontName` and `fontSize` options are only updated if the relevent agent has (nonempty) text.
+
+!> Currently, text does not behave reliably when the size of the parent's texture is changed. For example, when a zone's image is changed to an image of a different size (or to no image so a shape is used).
+
+### Shape
+
+| Option       | Square | Zone | Actor |
+|:-------------|:-------|:-----|:------|
+| `advanced` | `false` | `false` | `false` |
+| `lineColor` | `0x0` | `0x0` | `0x0` |
+| `lineAlpha` | `1` | `1` | `1` |
+| `lineWidth` | `1` | `1` | `1` |
+| `lineAlign` | `0.5` | `0.5` | `0.5` |
+| `fillColor` | `0xffffff` | `0xffffff` | `0xffffff` |
+| `fillAlpha` | `1` | `1` | `1` |
+
+<p style="font-size: 0.9em; margin-top: -0.9em">(Default values shown.)</p>
+
+When an agent's [image](#images) path is falsy, the agent's shape is used &mdash; a square, rectangle or circle. Use `advanced: true` to enable the advanced shape options (i.e. the line and fill options above).
+
+__Notes:__
+
+* The `tint` option is essentially the fill color when used with a shape or white image; do not use advanced options purely for a fill color.
+
+* Unlike `tint` and `alpha`, advanced options cannot be updated &mdash; i.e. they cannot be functions.
+
+* The use of advanced shape options with a large number of agents may impact performance.
+
+* `lineAlign` can take the values: `0` = inner, `0.5` = middle, `1` = outer.
+
+### Interaction
+
+An agent or simulation can use the following interaction options to add event handlers:
+
+&emsp;&emsp;`click`<br>
+&emsp;&emsp;`pointercancel`<br>
+&emsp;&emsp;`pointerdown`<br>
+&emsp;&emsp;`pointermove`<br>
+&emsp;&emsp;`pointerout`<br>
+&emsp;&emsp;`pointerover`<br>
+&emsp;&emsp;`pointertap`<br>
+&emsp;&emsp;`pointerup`<br>
+&emsp;&emsp;`pointerupoutside`<br>
+
+!> When an interaction option is used with the simulation object, the event handler is added to the background. Remember to also include `background: true`, otherwise the background will not exist.
+
+An interaction option should be a function &mdash; an event handler for the corresponding event type. When an event occurs, the handler is called and is passed the event; inside the event handler (assuming it is not an arrow function), `this` is the agent that triggered the event (or is the simulation object if the background triggers the event).
 
 ## Drawing Order
 
@@ -217,17 +248,7 @@ An agent cannot move between containers. If an agent's position in the drawing o
 
 ?> Note: once an agent has been added to a container, setting it's `zIndex` to `NaN` does not hide the agent. Instead, use an alpha of `0` to hide the agent.
 
-## Functions and Updates
-
-If an option such as `zoneTint` or `actorAlpha` is a function, it is called for each agent of the relevant type. The function is passed the agent (or in the case of background options, the simulation object) and the returned value is used as the option value. Furthermore, some of these functions will be called each tick, so the option is updated per agent per tick. When an option is a function, but per tick updates are not required for any agent, the relevant update option (`updateTint`, `updateAlpha`, `updateSprite`, `updateText`, `updateTextTint`, `updateTextAlpha`, `updateFontName` or `updateFontSize`) can be set to `false`.
-
-?> Note: the background is updated each tick if any of `backgroundTint`, `backgroundAlpha` or `backgroundSprite` are functions &mdash; i.e. `updateTint`, `updateAlpha` and `updateSprite` do not affect the background.
-
-?> Note: options for text tint, text alpha, font name and font size are only updated if the relevent agent has (nonempty) text. 
-
-The initial size of an actor's shape/sprite is based on the actor's initial radius. By default, the size of the sprite/shape is not updated when the radius changes; set the `updateRadius` option to `true` to update actors' radii each tick. Similarly, the rotation of an actor's shape/sprite is initialised from its pointing/heading, but the `updatePointing` option must be `true` for actors' rotations to be updated each tick.
-
-The initial [drawing order](#drawing-order) for agents in the middle container is based on the agents' `zIndex` properties. By default, the drawing order is not updated; set the `updateZIndex` option to `true` to update the drawing order every tick. Alternatively, `updateZIndex` can be a function; this is called every tick (and passed the simulation) and the drawing order is updated if the function returns a truthy value.
+?> Note: in Atomic Agents, the `zIndex` property of squares is `NaN` by default &mdash; so squares are not drawn in Atomic Agents Vis by default.
 
 ## Colors
 
@@ -247,63 +268,28 @@ For convenience, Atomic Agents Vis exports `colors`: an array of 9 categorical c
 
 ?> Note: the colors are [d3.schemeCategory10](https://github.com/d3/d3-scale-chromatic) with gray omitted. 
 
-## Sprites
+## Images
 
-### Images
-
-To use a sprite sheet, preload it with `sprites` (e.g. `sprites: ['../images/big-cats.json']` ) and use a sprite name as the appropriate sprite option (e.g. `actorSprite: 'lion.png'`).
-
-?> Note: [this repository](https://github.com/gjmcn/sprites) has some useful images and sprite sheets to get started. New sprite sheets can be created with free online tools such as [Free texture packer](https://free-tex-packer.com/app/).
-
-To create sprites from an individual image, preload the image with `sprites` (e.g. `sprites: ['../images/lion.png']`) and use the image's path as the appropriate sprite option (e.g. `actorSprite: '../images/lion.png'`). An image can be used without preloading it, but sprites that use the image will 'pop in' when the image loads. Images that are used for tiled sprites must be preloaded for the image-to-tile scale to be computed correctly.
-
-An actor with pointing/heading `0` faces the viewer's right, so images that will be used to indicate actors' pointings/headings should also face right.
-
-### Shapes
-
-When an agent's sprite path is falsy, the agent's shape is used &mdash; a square, rectangle or circle. By default, <i>basic shapes</i> are used; the `squareAdvanced`, `zoneAdvanced` and `actorAdvanced` options can be used to enable <i>advanced shapes</i> &mdash; i.e. to enable line and fill options.
-
-The `xxxLineAlign` options specify line alignment: `0` = inner, `0.5` = middle, `1` = outer.
-
-## Tiling
-
-Use `backgroundTile: true` to tile the background, and `zoneTile: true` (or a function) to tile zones. Tiles are the same size as simulation squares, so when using a sprite for tiles, the image should be square. Currently, each image-to-tile scale is only computed once during initialisation, so if a sprite is changed during the simulation (e.g. the sprite of a tiled zone is switched from a grass image to a sand image), the new image should have the same size as the old image.
-
-## Text
-
-Atomic Agents Vis uses bitmap text, so one or more bitmap fonts should be loaded in the `sprites` property. For example:
+To use a sprite sheet, preload it with the `images` option. For example:
 
 ```js
-AA.vis(sim, {
-  sprites: ['https://cdn.jsdelivr.net/gh/gjmcn/sprites/bitmap-fonts-96/hack.xml'],
-  actorFontName: 'Hack',
+AV.vis(sim, {
+  images: ['https://cdn.jsdelivr.net/gh/gjmcn/sprites/sprite-sheets/outside.json'],
   // ... other options
 });
 ```
 
-?> Note: [this repository](https://github.com/gjmcn/sprites) has some bitmap fonts to get started. New bitmap fonts can be generated from font files using free online tools such as [SnowBamboo](https://snowb.org/).
+Use the image name from the sprite sheet as the `image` option of an agent or simulation (e.g. `image: 'fish.png'`).
 
-The text options for squares and zones are identical, but there are some differences when it comes to actors. In particular:
+?> Note: [this repository](https://github.com/gjmcn/sprites) has some useful images and sprite sheets to get started. New sprite sheets can be created with free online tools such as [Free texture packer](https://free-tex-packer.com/app/).
 
-* There is no `actorTextPosition` option; the position is always `'center'`.
+To use an image file, preload the image with `images` (e.g. `images: ['../images/lion.png']`) and use the image's path as the appropriate `image` option (e.g. `image: '../images/lion.png'`). An image can be used without preloading it, but the image will 'pop in' after it loads. Images that are [tiled](#tiling) must be preloaded for the image-to-tile scale to be computed correctly.
 
-* There is no `actorTextPadding` option, but there is `actorTextMaxWidth` which can be used to keep text inside the actor.
+An actor with pointing/heading `0` faces the viewer's right, so images that will be used to indicate actors' pointings/headings should also face right.
 
-* If `actorTextRotate` is `true`, an actor's text is rotated with the actor's shape/sprite.
+## Tiling
 
-* By default, an actor's text scales with the actor's shape/sprite &mdash; preserving the text-to-sprite scale ratio from when the text was first added. To prevent this automatic scaling, actor font size must be updated: `updateFontSize: true` and e.g. `actorFontSize: ac => 16`.
-
-Other notes on text:
-
-* Valid values for the `squareTextAlign`, `zoneTextAlign` and `actorTextAlign` options are: `'left'`, `'right'`, `'center'` and  `'justify'`.
-
-* Valid values for the `squareTextPosition` and `zoneTextPosition` options are: `'center'`, `'top'`, `'top-right'`, `'right'`, `'bottom-right'`, `'bottom'`, `'bottom-left'`, `'left'` and `'top-left'`. 
-
-* Text automatically wraps in squares and zones to keep the text width (plus padding) less than the width of the square/zone. In actors, text is wrapped to keep its width less than the `actorTextMaxWidth` of the actor. Use `'\n'` characters in text for explicit line breaks. 
-
-* If an agent's text is `null`, `undefined` or an empty string, no text is shown &mdash; and since a text object is only added to a sprite when it is first required, no text object is added.
-
-!> Currently, text does not behave reliably when the size of the parent's texture is changed. For example, when a zone's sprite is changed to an image of a different size (or to no sprite so a shape is used).
+Use `tile: true` with a simulation (for the background) or zone to tile an image/shape. Tiles are the same size as simulation squares, so when tiling an image, the image should be square. Currently, each image-to-tile scale is only computed once during initialisation, so if an image is changed during the simulation (e.g. the image of a tiled zone is switched from a grass image to a sand image), the new image should be the same size as the old image.
 
 ## Particles
 
@@ -311,10 +297,10 @@ Each of the back, middle and front containers (see [Drawing Order](#drawing-orde
 
 * Image/shape restictions:
 
-  * When using images, all agents in the container must use the same image, or use images from the same sprite sheet &mdash; in which case an agent's image <i>can </i> be changed durnig the simulation.
+  * When using images, all agents in the container must use the same image, or use images from the same sprite sheet &mdash; in which case an agent's image <i>can</i> be changed during the simulation.
   
-  * When not using images, all agents in the container will be of the same shape &mdash; which is typically only appropriate when all agents in the container (or at least those that are drawn) are of the same type. If an [advanced shape](#shapes) is used, its
- line and fill options <i>cannot</i> vary by agent.
+  * When not using images, all agents in the container will be of the same shape &mdash; which is typically only appropriate when all agents in the container (or at least those that are drawn) are of the same type. If [advanced shape](#shape) options are used, they
+  <i>cannot</i> vary by agent.
 
 * [Tiling](#tiling) <i>cannot</i> be used with agents in a particle container.
 
@@ -334,55 +320,3 @@ Instead of setting a particle option to `true`, we can use a positive integer: t
 1. Shallow copies `options`, and sets the `target` option to the created div and the `cleanup` option to `true`.
 1. Calls `vis(sim, options)`.
 1. Returns the div.
-
-## Notes
-
-### Browser only
-
-While an Atomic Agents simulation will run in any JavaScript environment, Atomic Agents Vis can only be used in the browser &mdash; or some browser-like environment like [Electron](https://www.electronjs.org/).
-
-### Tips
-
-* Tint options can be used with any sprites, but are particularly useful with [shapes](#shapes) and white images where the tint is essentially the 'fill' color.
-
-* In complex models, use 'lookup objects' to help readability while keeping agent state separate from appearance. For example:
-
-  ```js
-  const sim = new Simulation();
-
-  new Actor({state: {mood: 'calm'}})
-    .label('role', 'predator')
-    .addTo(sim);
-
-  new Actor({state: {mood: 'worried'}})
-    .label('role', 'prey')
-    .addTo(sim);
-
-  const spriteLookup = {
-    predator: 'lion.png',
-    prey: 'zebra.png'
-  };
-
-  const tintLookup = {
-    calm: colors.blue,
-    worried: colors.red
-  };
-
-  vis(sim, {
-    sprites: '../sprites/animals.json',
-    actorSprite: ac => spriteLookup[ac.label('role')],
-    actorTint: ac => tintLookup[ac.state.mood]
-  });
-  ```
-
-### Gotchas
-
-* The `background` option is `false` by default.
-
-* Many [update options](#updates) are `false` by default.
-
-* In Atomic Agents, the `zIndex` property of squares is `NaN` by default &mdash; so squares are not drawn in Atomic Agents Vis by default.
-
-* Each of `squareFontName`, `zoneFontName` and `ActorFontName` has to be set individually (assuming that text is being used with all three agent types).
-
-* When an option is a function, the returned value is used 'as is'. In particular, `undefined` and `null` are not replaced with the option's default value.

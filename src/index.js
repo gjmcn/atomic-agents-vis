@@ -163,7 +163,7 @@ export function vis(sim, visOps = {}) {
       spr.interactive = true;
       spr.interactiveChildren = false;
       for (let [eventName, handler] of agent._interaction) {
-        sprite.on(eventName, handler);
+        spr.on(eventName, handler);
       }
     }
     if (agent.type === 'actor') {
@@ -181,7 +181,7 @@ export function vis(sim, visOps = {}) {
 
     // add background
     addBackground = function() {
-      const imgPath = simulationOptionValue('sprite');
+      const imgPath = simulationOptionValue('image');
       const texture = imgPath
         ? PIXI.Texture.from(imgPath)
         : PIXI.Texture.WHITE;
@@ -209,8 +209,8 @@ export function vis(sim, visOps = {}) {
       const backgroundUpdateFunctions = {    
         tint: f => spr.tint = f(sim) ?? defaults.simulation.tint,
         alpha: f => spr.alpha = f(sim) ?? defaults.simulation.alpha,
-        sprite: f => {
-          const imgPath = f(sim) ?? defaults.simulation.sprite;
+        image: f => {
+          const imgPath = f(sim) ?? defaults.simulation.image;
           const texture = imgPath 
             ? PIXI.Texture.from(imgPath)
             : PIXI.Texture.WHITE;
@@ -285,9 +285,9 @@ export function vis(sim, visOps = {}) {
       useTiling = optionValue(agent, 'tile');
     }
     const info = {};
-    const imgPath = optionValue(agent, 'sprite');
+    const imgPath = optionValue(agent, 'image');
     const imgTexture = imgPath ? PIXI.Texture.from(imgPath) : null;
-    if (!imgTexture || agent._visUpdates?.has('sprite')) {    
+    if (!imgTexture || agent._visUpdates?.has('image')) {    
       if (optionValue(agent, 'advanced')) {
         info.shpTexture = shapeTexture({
           name: 'rect',
@@ -349,9 +349,9 @@ export function vis(sim, visOps = {}) {
   // add actor
   function addActor(ac) {
     const info = {};
-    const imgPath = optionValue(ac, 'sprite');
+    const imgPath = optionValue(ac, 'image');
     const imgTexture = imgPath ? PIXI.Texture.from(imgPath) : null;
-    if (!imgTexture || ac._visUpdates?.has('sprite')) {
+    if (!imgTexture || ac._visUpdates?.has('image')) {
       if (optionValue(ac, 'advanced')) {
         info.shpTexture = shapeTexture({
           name: 'circle',
@@ -392,11 +392,11 @@ export function vis(sim, visOps = {}) {
     alpha: (agent, spr, f) => {
       spr.alpha = f(agent) ?? defaults[agent.type].alpha;
     },
-    sprite: (agent, spr, f) => {
-      const imgPath = f(agent) ?? defaults[agent.type].sprite;
+    image: (agent, spr, f) => {
+      const imgPath = f(agent) ?? defaults[agent.type].image;
       const texture = imgPath 
         ? PIXI.Texture.from(imgPath)
-        : PIXI.Texture.WHITE;
+        : agentMaps[agent.type].get(agent).shpTexture;
       if (spr.texture !== texture) spr.texture = texture;
     },
     text: (agent, spr, f) => {
@@ -454,8 +454,10 @@ export function vis(sim, visOps = {}) {
         }
       }
     }
-    for (let [key, f] of agent._visUpdates) {
-      agentUpdateFunctions[key](agent, spr, f);
+    if (agent._visUpdates) {
+      for (let [key, f] of agent._visUpdates) {
+        agentUpdateFunctions[key](agent, spr, f);
+      }
     }
   }
 
@@ -598,7 +600,7 @@ export function vis(sim, visOps = {}) {
   }
 
   
-  // =====  load sprite files then call setup ==================================
+  // =====  load image files then call setup ==================================
 
   function getStem(s) {
     const dotIndex = s.lastIndexOf('.');
@@ -607,7 +609,7 @@ export function vis(sim, visOps = {}) {
   const cachedTextureStems =
     new Set(Object.keys(PIXI.utils.TextureCache).map(getStem));
   loader
-    .add(visOps.sprites.filter(src => !cachedTextureStems.has(getStem(src))))
+    .add(visOps.images.filter(src => !cachedTextureStems.has(getStem(src))))
     .load(setup);
   return app;
 

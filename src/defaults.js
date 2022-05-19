@@ -15,20 +15,20 @@ export const defaults = {
     antialias: true,  
     clearBeforeRender: true,
     preserveDrawingBuffer: false,
-    sprites: [],
+    images: [],
     backParticles: false,
     middleParticles: false,
     frontParticles: false,
+    basicCircleRadius: 64,
+    advancedCircleScale: 5,
+    updateRadii: true,
+    updatePointings: true,
+    updateDrawOrder: true,
     beforeSetup: null,
     afterSetup: null,
     beforeTick: null,
     afterTick: null,
-    finished: null,
-    updateRadii: true,
-    updatePointings: true,
-    updateDrawOrder: true,
-    basicCircleRadius: 64,
-    advancedCircleScale: 5
+    finished: null
   },
 
   simulation: {
@@ -37,14 +37,14 @@ export const defaults = {
     background: false,
     tint: 0xffffff,
     alpha: 1,
-    sprite: null,
+    image: null,
     tile: false
   },
 
   square: {
     tint: 0xffffff,
     alpha: 1,
-    sprite: null,
+    image: null,
     text: null,
     textPosition: 'center',
     textPadding: 3,
@@ -65,7 +65,7 @@ export const defaults = {
   zone: {
     tint: 0xffffff,
     alpha: 1,
-    sprite: null,
+    image: null,
     text: null,
     textPosition: 'center',
     textPadding: 3,
@@ -87,7 +87,7 @@ export const defaults = {
   actor: {
     tint: 0xffffff,
     alpha: 1,
-    sprite: null,
+    image: null,
     text: null,
     textRotate: false,
     textMaxWidth: 0,
