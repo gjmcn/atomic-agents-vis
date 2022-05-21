@@ -188,8 +188,6 @@ __Notes:__
 
 !> Currently, text does not behave reliably when the size of the agent's texture is changed. For example, when a zone's image is changed to an image of a different size (or to no image so a shape is used).
 
-!!!!!!!! HERE !!!!!!!!!!!!!
-
 ### Shape
 
 | Option       | Square | Zone | Actor |
@@ -208,17 +206,17 @@ When an agent's [image](#images) path is falsy, the agent's shape is used &mdash
 
 __Notes:__
 
-* The `tint` option is essentially the fill color when used with a shape or white image; do not use advanced options purely for a fill color.
+* The basic `tint` option is essentially the fill color for a shape or white image; do not use advanced options purely for a fill color.
 
 * Unlike `tint` and `alpha`, advanced options cannot be updated &mdash; i.e. they cannot be functions.
 
-* The use of advanced shape options with a large number of agents may impact performance.
+* Using advanced shape options with a large number of agents may impact performance.
 
-* `lineAlign` can take the values: `0` = inner, `0.5` = middle, `1` = outer.
+* `lineAlign` can be `0` (inner), `0.5` (middle) or `1` (outer).
 
 ### Interaction
 
-An agent or simulation can use the following interaction options to add event handlers:
+Event listeners can be added to agents or the simulation (i.e. the background) using the following options:
 
 &emsp;&emsp;`click`<br>
 &emsp;&emsp;`pointercancel`<br>
@@ -229,11 +227,11 @@ An agent or simulation can use the following interaction options to add event ha
 &emsp;&emsp;`pointerup`<br>
 &emsp;&emsp;`pointerupoutside`<br>
 
-!!!! EXPLAIN WHY USING POINTER EVENTS!!!
+Pointer events fire for both mouse and touch events.
 
-!> When an interaction option is used with the simulation object, the event handler is added to the background. Remember to also include `background: true`, otherwise the background will not exist.
+An event listener is a function. When an event of the relevant type is 'heard', the function is called and is passed the event; inside the function (assuming it is not an arrow function), `this` is the agent that triggered the event (or is the simulation object if the background triggered the event).
 
-An interaction option should be a function &mdash; an event handler for the corresponding event type. When an event occurs, the handler is called and is passed the event; inside the event handler (assuming it is not an arrow function), `this` is the agent that triggered the event (or is the simulation object if the background triggers the event).
+!> When adding event listeners to the simulation (i.e. the background), remember to also include `background: true` otherwise the background will not exist.
 
 ## Drawing Order
 
