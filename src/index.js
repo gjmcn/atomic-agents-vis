@@ -167,7 +167,8 @@ export function vis(sim, visOps = {}) {
       }
     }
     if (agent.type === 'actor') {
-      spr.hitArea = new PIXI.Circle(agent.x, agent.y, agent.radius);
+      spr.hitArea =
+        new PIXI.Circle(0, 0, agent.radius * spr.texture.width / spr.width);
     }
   }
 
@@ -435,15 +436,8 @@ export function vis(sim, visOps = {}) {
   function updateAgent(agent, {spr}) {
     if (agent.type === 'actor') {
       spr.position.set(agent.x, agent.y);
-      if (agent._interaction) {
-        spr.hitArea.x = agent.x;
-        spr.hitArea.y = agent.y;
-      }
       if (visOps.updateRadii) {
         spr.width = spr.height = 2 * agent.radius;
-        if (agent._interaction) {
-          spr.hitArea.radius = agent.radius;
-        }
       }
       if (visOps.updatePointings) {
         spr.rotation = agent.pointing ?? agent.heading();
@@ -618,7 +612,7 @@ export function vis(sim, visOps = {}) {
 
 // ===== convenience function for using vis in Observable ======================
 
-export function visObs(sim, visOps) {
+export function visObs(sim, visOps = {}) {
   const div = document.createElement('div');
   visOps = {...visOps, target: div, cleanup: true};
   vis(sim, visOps);
