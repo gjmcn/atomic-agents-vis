@@ -61,7 +61,8 @@ The `options` object passed to `vis` or `visObs` can include the following:
 | `clearBeforeRender` | `true` | Clear the canvas before each render pass? |
 | `preserveDrawingBuffer` | `false` | Enable drawing buffer preservation? |
 | `images` | `[]` | Paths/URLs to image, sprite sheet and bitmap font files. Files that have already been loaded (i.e. where the texture already exists) are skipped. |
-| `fontName` | `null` | Font name. Can be overwritten by individual agents &mdash; see [Text](#text). |
+| `fontName` | `null` | Font name for agent text. Can be overwritten by individual agents &mdash; see [Text](#text). |
+| `fontSize` | `16` | Font size for agent text. Can be overwritten by individual agents &mdash; see [Text](#text). |
 | `backParticles` | `false` | Back container is a particle container? &mdash; see [Particles](#particles) |
 | `middleParticles` | `false` | Middle container is a particle container? &mdash; see [Particles](#particles) |
 | `frontParticles` | `false` | Front container is a particle container? &mdash; see [Particles](#particles) |
@@ -150,7 +151,7 @@ The "Update" column indicates if an option can be a function. When an option is 
 | `textTint` | `0x0` | `0x0` | `0x0` | ✓ |
 | `textAlpha` | `1` | `1` | `1` | ✓ |
 | `fontName` | `null` | `null` | `null` | ✓ |
-| `fontSize` | `16` | `16` | `16` | ✓ |
+| `fontSize` | `null` | `null` | `null` | ✓ |
 
 <p style="font-size: 0.9em; margin-top: -0.9em">(Default values shown; empty cell indicates that option is not used; see Basic options for an explanation of "Update".)</p>
 
@@ -173,7 +174,7 @@ __Notes:__
 
 * If `actorTextRotate` is `true`, an actor's text is rotated with the actor's shape/image.
 
-* By default, an actor's text scales with the actor's shape/image &mdash; preserving the text-to-actor scale ratio from when the text was first added. To prevent this automatic scaling, actor font size must be updated: `updateFontSize: true` and e.g. `actorFontSize: ac => 16`.
+* By default, an actor's text scales with the actor's shape/image &mdash; preserving the text-to-actor scale ratio from when the text was first added. To prevent this automatic scaling, actor font size must be updated &mdash; i.e. the vis option `updateFontSize` must be `true` and the agent's `fontSize` option must be a function.
 
 * Valid values for the `squareTextAlign`, `zoneTextAlign` and `actorTextAlign` options are: `'left'`, `'right'`, `'center'` and  `'justify'`.
 
