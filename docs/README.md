@@ -61,6 +61,7 @@ The `options` object passed to `vis` or `visObs` can include the following:
 | `clearBeforeRender` | `true` | Clear the canvas before each render pass? |
 | `preserveDrawingBuffer` | `false` | Enable drawing buffer preservation? |
 | `images` | `[]` | Paths/URLs to image, sprite sheet and bitmap font files. Files that have already been loaded (i.e. where the texture already exists) are skipped. |
+| `fontName` | `null` | Font name. Can be overwritten by individual agents &mdash; see [Text](#text). |
 | `backParticles` | `false` | Back container is a particle container? &mdash; see [Particles](#particles) |
 | `middleParticles` | `false` | Middle container is a particle container? &mdash; see [Particles](#particles) |
 | `frontParticles` | `false` | Front container is a particle container? &mdash; see [Particles](#particles) |
@@ -158,7 +159,7 @@ Atomic Agents Vis uses bitmap text, so one or more bitmap fonts should be preloa
 ```js
 AV.vis(sim, {
   images: ['https://cdn.jsdelivr.net/gh/gjmcn/sprites/bitmap-fonts-96/hack.xml'],
-  // ... other options
+  fontName: 'Hack'
 });
 ```
 
@@ -166,7 +167,9 @@ __Notes:__
 
 * [This repository](https://github.com/gjmcn/sprites) has some bitmap fonts to get started. New bitmap fonts can be generated from font files using free online tools such as [SnowBamboo](https://snowb.org/).
 
-* The `fontName` option must be used with each agent that has text.
+!!!!!!!! HERE !!!!!!!!!!!
+
+* An agent-level `fontName` overrides the top-level `fontName` passed to the `vis` function. For an agent to display text, an agent-level or top-level font name (or both) must be specified.
 
 * If `actorTextRotate` is `true`, an actor's text is rotated with the actor's shape/image.
 

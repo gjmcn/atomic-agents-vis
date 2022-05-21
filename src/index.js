@@ -87,7 +87,7 @@ export function vis(sim, visOps = {}) {
     const type = agent.type;
     const isTilingSprite = type === 'zone' && spr instanceof PIXI.TilingSprite;
     const xScale = isTilingSprite ? 1 : spr.texture.width / spr.width;
-    const fontName = optionValue(agent, 'fontName');
+    const fontName = optionValue(agent, 'fontName') ?? visOps.fontName;
     const fontSize = optionValue(agent, 'fontSize') ;
     const align    = optionValue(agent, 'textAlign');
     const tint     = optionValue(agent, 'textTint');
@@ -430,7 +430,7 @@ export function vis(sim, visOps = {}) {
     },
     fontName: (agent, spr, f) => {
       const txt = spr.children[0];
-      if (txt?.text) txt.fontName = f(agent) ?? defaults[agent.type].fontName;
+      if (txt?.text) txt.fontName = f(agent) ?? visOps.fontName;
     }
   };
   function updateAgent(agent, {spr}) {

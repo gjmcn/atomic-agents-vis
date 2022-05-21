@@ -16,6 +16,7 @@ export const defaults = {
     clearBeforeRender: true,
     preserveDrawingBuffer: false,
     images: [],
+    fontName: null,
     backParticles: false,
     middleParticles: false,
     frontParticles: false,
