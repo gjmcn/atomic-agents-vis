@@ -168,25 +168,27 @@ __Notes:__
 
 * [This repository](https://github.com/gjmcn/sprites) has some bitmap fonts to get started. New bitmap fonts can be generated from font files using free online tools such as [SnowBamboo](https://snowb.org/).
 
-!!!!!!!! HERE !!!!!!!!!!!
+* Agent-level `fontName` options override the top-level `fontName` option. Similarly, agent-level `fontSize` options override the top-level `fontSize` option.
 
-* An agent-level `fontName` overrides the top-level `fontName` passed to the `vis` function. For an agent to display text, an agent-level or top-level font name (or both) must be specified.
+* If an agent has text, its `fontName` must be specified, or a top-level `fontName` must be specified (or both).
 
-* If `actorTextRotate` is `true`, an actor's text is rotated with the actor's shape/image.
+* If `textRotate` is `true`, the actor's text is rotated with its shape/image.
 
-* By default, an actor's text scales with the actor's shape/image &mdash; preserving the text-to-actor scale ratio from when the text was first added. To prevent this automatic scaling, actor font size must be updated &mdash; i.e. the vis option `updateFontSize` must be `true` and the agent's `fontSize` option must be a function.
+* By default, an actor's text scales with its shape/image &mdash; preserving the scale ratio from when the text was first added. To prevent this automatic scaling, the actor's font size must be updated &mdash; i.e. the agent's `fontSize` option must be a function.
 
-* Valid values for the `squareTextAlign`, `zoneTextAlign` and `actorTextAlign` options are: `'left'`, `'right'`, `'center'` and  `'justify'`.
+* `textAlign` can be `'left'`, `'right'`, `'center'` or  `'justify'`.
 
-* Valid values for the `squareTextPosition` and `zoneTextPosition` options are: `'center'`, `'top'`, `'top-right'`, `'right'`, `'bottom-right'`, `'bottom'`, `'bottom-left'`, `'left'` and `'top-left'`. 
+* `textPosition` can be `'center'`, `'top'`, `'top-right'`, `'right'`, `'bottom-right'`, `'bottom'`, `'bottom-left'`, `'left'` or `'top-left'`. 
 
-* Text automatically wraps in squares and zones to keep the text width (plus padding) less than the width of the square/zone. In actors, text is wrapped to keep its width less than the `actorTextMaxWidth` of the actor. Use `'\n'` characters in text for explicit line breaks. 
+* Text automatically wraps in squares and zones to keep the text width (plus padding) less than the width of the square/zone. In actors, text is wrapped to keep its width less than `textMaxWidth`. Use `'\n'` characters in text for explicit line breaks. 
 
 * If an agent's text is `null`, `undefined` or an empty string, no text is shown &mdash; and since a text object is only added when it is first required, no text object is added.
 
-* At a given tick, the `textTint`, `textAlpha`, `fontName` and `fontSize` options are only updated if the relevent agent has (nonempty) text.
+* At a given tick, `textTint`, `textAlpha`, `fontName` and `fontSize` are only updated if the relevent agent has (nonempty) text.
 
-!> Currently, text does not behave reliably when the size of the parent's texture is changed. For example, when a zone's image is changed to an image of a different size (or to no image so a shape is used).
+!> Currently, text does not behave reliably when the size of the agent's texture is changed. For example, when a zone's image is changed to an image of a different size (or to no image so a shape is used).
+
+!!!!!!!! HERE !!!!!!!!!!!!!
 
 ### Shape
 
