@@ -1,6 +1,8 @@
-#### 0.4.0 &mdash; ??????
+#### 0.4.0 &mdash; 22 May, 2022
 
-* Add interaction options.
+* Move background and agent vis options to Atomic Agents. 
+
+* Implement interaction options.
 
 * Reduce number of update options &mdash; and rename remaining options to match Atomic Agents.
 
