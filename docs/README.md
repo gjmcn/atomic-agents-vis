@@ -60,7 +60,7 @@ The `options` object passed to `vis` or `visObs` can include the following:
 | `antialias` | `true` | Antialias? |
 | `clearBeforeRender` | `true` | Clear the canvas before each render pass? |
 | `preserveDrawingBuffer` | `false` | Enable drawing buffer preservation? |
-| `images` | `[]` | Paths/URLs to image, sprite sheet and bitmap font files. Files that have already been loaded (i.e. where the texture already exists) are skipped. |
+| `images` | `[]` | Paths/URLs to image, sprite sheet and bitmap font files. Files that have already been loaded (i.e. where the texture already exists) are skipped. See [Images](#images) for details. |
 | `fontName` | `null` | Font name for agent text. Can be overwritten by individual agents &mdash; see [Text](#text). |
 | `fontSize` | `16` | Font size for agent text. Can be overwritten by individual agents &mdash; see [Text](#text). |
 | `backParticles` | `false` | Back container is a particle container? &mdash; see [Particles](#particles) |
@@ -216,7 +216,7 @@ __Notes:__
 
 ### Interaction
 
-Event listeners can be added to agents or the simulation (i.e. the background) using the following options:
+Event listeners can be added to agents or to the simulation (i.e. the background) using the following options:
 
 &emsp;&emsp;`click`<br>
 &emsp;&emsp;`pointercancel`<br>
@@ -229,9 +229,11 @@ Event listeners can be added to agents or the simulation (i.e. the background) u
 
 Pointer events fire for both mouse and touch events.
 
-An event listener is a function. When an event of the relevant type is 'heard', the function is called and is passed the event; inside the function (assuming it is not an arrow function), `this` is the agent that triggered the event (or is the simulation object if the background triggered the event).
-
 !> When adding event listeners to the simulation (i.e. the background), remember to also include `background: true` otherwise the background will not exist.
+
+An event listener is a function. When an event of the relevant type is 'heard', the function is called and is passed the event. Inside the function (assuming it is not an arrow function), `this` is the agent/simulation that the listener belongs to.
+
+If an agent has even a single event listener, it becomes interactive and blocks events firing on the agents/background below. This behavior can be frustrating in some cases, but useful in others. For example, to have an agent block all events getting through, give it an empty click listener: `click: () => {}`.
 
 ## Drawing Order
 
@@ -277,26 +279,39 @@ For convenience, Atomic Agents Vis exports `colors`: an array of 9 categorical c
 
 ## Images
 
-To use a sprite sheet, preload it with the `images` option. For example:
+To use a sprite sheet, preload it with the `images` option. Use the image names from the sprite sheet when setting the `image` option of agents or the simulation (i.e. the background). For example:
 
 ```js
+// simulation with tiled grass image for the background
+const sim = new AA.Simulation().vis({
+  background: true,
+  image: 'grass.png',
+  tile: true
+})
+
+// tree
+new AA.Actor({
+  x: 100,
+  y: 100,
+  radius: 30
+}).vis({
+  image: 'tree-dark.png'
+}).addTo(sim);
+
 AV.vis(sim, {
-  images: ['https://cdn.jsdelivr.net/gh/gjmcn/sprites/sprite-sheets/outside.json'],
-  // ... other options
+  images: ['https://cdn.jsdelivr.net/gh/gjmcn/sprites/sprite-sheets/outside.json']
 });
 ```
 
-Use the image name from the sprite sheet as the `image` option of an agent or simulation (e.g. `image: 'fish.png'`).
-
 ?> Note: [this repository](https://github.com/gjmcn/sprites) has some useful images and sprite sheets to get started. New sprite sheets can be created with free online tools such as [Free texture packer](https://free-tex-packer.com/app/).
 
-To use an image file, preload the image with `images` (e.g. `images: ['../images/lion.png']`) and use the image's path as the appropriate `image` option (e.g. `image: '../images/lion.png'`). An image can be used without preloading it, but the image will 'pop in' after it loads. Images that are [tiled](#tiling) must be preloaded for the image-to-tile scale to be computed correctly.
+To use an image file directly, preload the image with `images` and use the same path/URL in the appropriate `image` option &mdash; not just the file name. An image can be used without preloading it, but the image will 'pop in' after it loads. Images that are [tiled](#tiling) must be preloaded for the image-to-tile scale to be computed correctly.
 
 An actor with pointing/heading `0` faces the viewer's right, so images that will be used to indicate actors' pointings/headings should also face right.
 
 ## Tiling
 
-Use `tile: true` with a simulation (for the background) or zone to tile an image/shape. Tiles are the same size as simulation squares, so when tiling an image, the image should be square. Currently, each image-to-tile scale is only computed once during initialisation, so if an image is changed during the simulation (e.g. the image of a tiled zone is switched from a grass image to a sand image), the new image should be the same size as the old image.
+Use `tile: true` with a zone or simulation (i.e. the background) to tile an image/shape. Tiles are the same size as simulation squares, so the image to be tiled should be square. Currently, each image-to-tile scale is only computed once during initialisation, so if an image is changed during the simulation (e.g. a zone changes from grass to sand), the new image should be the same size as the old image.
 
 ## Particles
 
@@ -313,7 +328,7 @@ Each of the back, middle and front containers (see [Drawing Order](#drawing-orde
 
 * [Text](#text) <i>cannot</i> be used with agents in a particle container.
 
-?> Note: the tints and alphas of agents in a particle container can be updated as normal, as can the radii and pointings of actors.
+?> Note: the tints and alphas of agents in a particle container are updated as normal, as are the sizes and rotations of actors.
 
 Set the `backParticles` option to `true` to specify that the back container is a particle container. The `middleParticles` and `frontParticles` options are used similarly.
 
