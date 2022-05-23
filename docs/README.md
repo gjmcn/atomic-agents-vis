@@ -118,6 +118,8 @@ new AA.Actor({
 AV.vis(sim, {images: [grass]});
 ```
 
+!> The `vis` method of an agent or simulation can only be called once and (if used) should be called before the agent/simulation is added to the visualisation. To ensure this, call  the `vis` method immediately after creating the agent/simulation.
+
 The background and agent options are summarised in the following sections.
 
 ### Basic
