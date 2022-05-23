@@ -1,3 +1,7 @@
+#### 0.4.1 &mdash; 23 May, 2022
+
+* Fix `textRotate` and `tile` bugs.
+
 #### 0.4.0 &mdash; 22 May, 2022
 
 * Move background and agent vis options to Atomic Agents. 

@@ -141,7 +141,7 @@ The "Update" column indicates if an option can be a function. When an option is 
 ### Text
 
 | Option       | Square | Zone | Actor | Update |
-|:-------------|:-------|:-------|:-----|:------|
+|:-------------|:-------|:-------|:-----|:-----:|
 | `text` | `null` | `null` | `null` | ✓ |
 | `textPosition` | `'center'` | `'center'` |  |  |
 | `textPadding` | `3` | `3` |  |  |

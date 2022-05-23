@@ -414,7 +414,7 @@ export function vis(sim, visOps = {}) {
       const txt = spr.children[0];
       if (txt?.text) {
         txt.fontSize = (f(agent) ?? visOps.fontSize) *
-          (agent._vis?.tile ?? defaults[agent.type].tile
+          (agent._vis?.get('tile') ?? defaults[agent.type].tile
             ? 1
             : spr.texture.width / spr.width
           );
@@ -443,7 +443,7 @@ export function vis(sim, visOps = {}) {
         spr.rotation = agent.pointing ?? agent.heading();
         const txt = spr.children[0];
         if (txt?.text &&
-            !(agent._vis.textRotate ?? defaults.actor.textRotate)) {
+            !(agent._vis?.get('textRotate') ?? defaults.actor.textRotate)) {
           txt.rotation = -spr.rotation;
         }
       }
