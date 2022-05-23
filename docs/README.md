@@ -61,8 +61,6 @@ The `options` object passed to `vis` or `visObs` can include the following:
 | `clearBeforeRender` | `true` | Clear the canvas before each render pass? |
 | `preserveDrawingBuffer` | `false` | Enable drawing buffer preservation? |
 | `images` | `[]` | Paths/URLs to image, sprite sheet and bitmap font files. Files that have already been loaded (i.e. where the texture already exists) are skipped. See [Images](#images) for details. |
-| `fontName` | `null` | Font name for agent text. Can be overwritten by individual agents &mdash; see [Text](#text). |
-| `fontSize` | `16` | Font size for agent text. Can be overwritten by individual agents &mdash; see [Text](#text). |
 | `backParticles` | `false` | Back container is a particle container? &mdash; see [Particles](#particles) |
 | `middleParticles` | `false` | Middle container is a particle container? &mdash; see [Particles](#particles) |
 | `frontParticles` | `false` | Front container is a particle container? &mdash; see [Particles](#particles) |
@@ -76,6 +74,8 @@ The `options` object passed to `vis` or `visObs` can include the following:
 | `beforeTick` | `null` | Function to call before each tick (before `sim.tick` is called). The function is passed the simulation object, the PIXI app and the PIXI object. <br><br>__Note:__ pausing or ending the simulation from `beforeTick` may cause issues; pause or end the simulation from inside the simulation itself (e.g. using `sim.beforeTick`), or from the `afterTick` function. |
 | `afterTick` | `null` | Function to call after each tick (after `sim.afterTick` is called and the visualisation is updated). The function is passed the simulation object, the PIXI app and the PIXI object. |
 | `finished` | `null` | Function to call after the simulation ends. The function is passed the simulation object, the PIXI app and the PIXI object. |
+
+?> Note: 'top-level' text options can also be passed to `vis` and `visObs`. See [Text](#text) for details.
 
 To avoid clearing the canvas between frames, use `clearBeforeRender: false` <i>and</i> `preserveDrawingBuffer: true`. In this case, [`baseColor`](#basic) and [`baseAlpha`](#basic) are ignored; if there is no [background](#base-and-background), actors leave permanent trails; if there is a background with alpha less than 1, actors leave fading trails. Note that 'trails' are from previous frames so are covered by anything drawn in the current frame. Also, a background with alpha less than one will not appear faint since the background will keep being drawn on top of itself.
 
@@ -140,35 +140,35 @@ The "Update" column indicates if an option can be a function. When an option is 
 
 ### Text
 
-| Option       | Square | Zone | Actor | Update |
-|:-------------|:-------|:-------|:-----|:-----:|
-| `text` | `null` | `null` | `null` | ✓ |
-| `textPosition` | `'center'` | `'center'` |  |  |
-| `textPadding` | `3` | `3` |  |  |
-| `textRotate` |  |  | `false` |  |
-| `textMaxWidth` |  |  | `0` |  |
-| `textAlign` | `'center'` | `'center'` | `'center'` |  |
-| `textTint` | `0x0` | `0x0` | `0x0` | ✓ |
-| `textAlpha` | `1` | `1` | `1` | ✓ |
-| `fontName` | `null` | `null` | `null` | ✓ |
-| `fontSize` | `null` | `null` | `null` | ✓ |
+| Option       | Top-level | Square | Zone | Actor | Update |
+|:-------------|:----------|:-------|:-------|:-----|:-----:|
+| `text` |  | `null`  | `null` | `null` | ✓ |
+| `textPosition` |  | `'center'` | `'center'` |  |  |
+| `textPadding` |  | `3` | `3` |  |  |
+| `textRotate` |  |  |  | `false` |  |
+| `textMaxWidth` |  |  |  | `0` |  |
+| `textAlign` | `'center'` | `null` | `null` | `null` |  |
+| `textTint` | `0x0` | `null` | `null` | `null` | ✓ (except top-level) |
+| `textAlpha` | `1` | `null` | `null` | `null` | ✓ (except top-level) |
+| `fontName` | `null` |  `null` | `null` | `null` | ✓ (except top-level) |
+| `fontSize` | 16 |  `null` | `null` | `null` | ✓ (except top-level) |
 
 <p style="font-size: 0.9em; margin-top: -0.9em">(Default values shown; empty cell indicates that option is not used; see Basic options for an explanation of "Update".)</p>
+
+'Top-level' options are passed to the `vis` or `visObs` functions. A top-level option is used when the corresponding agent option is `null` or `undefined`.
 
 Atomic Agents Vis uses bitmap text, so one or more bitmap fonts should be preloaded using the `images` option. For example:
 
 ```js
 AV.vis(sim, {
   images: ['https://cdn.jsdelivr.net/gh/gjmcn/sprites/bitmap-fonts-96/hack.xml'],
-  fontName: 'Hack'
+  fontName: 'Hack'  // top-level option
 });
 ```
 
 __Notes:__
 
 * [This repository](https://github.com/gjmcn/sprites) has some bitmap fonts to get started. New bitmap fonts can be generated from font files using free online tools such as [SnowBamboo](https://snowb.org/).
-
-* Agent-level `fontName` options override the top-level `fontName` option. Similarly, agent-level `fontSize` options override the top-level `fontSize` option.
 
 * If an agent has text, its `fontName` must be specified, or a top-level `fontName` must be specified (or both).
 

@@ -87,11 +87,11 @@ export function vis(sim, visOps = {}) {
     const type = agent.type;
     const isTilingSprite = type === 'zone' && spr instanceof PIXI.TilingSprite;
     const xScale = isTilingSprite ? 1 : spr.texture.width / spr.width;
-    const fontName = optionValue(agent, 'fontName') ?? visOps.fontName;
-    const fontSize = optionValue(agent, 'fontSize') ?? visOps.fontSize;
-    const align    = optionValue(agent, 'textAlign');
-    const tint     = optionValue(agent, 'textTint');
-    const alpha    = optionValue(agent, 'textAlpha');
+    const fontName = optionValue(agent, 'fontName')  ?? visOps.fontName;
+    const fontSize = optionValue(agent, 'fontSize')  ?? visOps.fontSize;
+    const align    = optionValue(agent, 'textAlign') ?? visOps.textAlign;
+    const tint     = optionValue(agent, 'textTint')  ?? visOps.textTint;
+    const alpha    = optionValue(agent, 'textAlpha') ?? visOps.textAlpha;
     let txt;
     
     // actor
@@ -422,11 +422,11 @@ export function vis(sim, visOps = {}) {
     },
     textTint: (agent, spr, f) => {
       const txt = spr.children[0];
-      if (txt?.text) txt.tint = f(agent) ?? defaults[agent.type].textTint;
+      if (txt?.text) txt.tint = f(agent) ?? visOps.textTint;
     },
     textAlpha: (agent, spr, f) => {
       const txt = spr.children[0];
-      if (txt?.text) txt.alpha = f(agent) ?? defaults[agent.type].textAlpha;
+      if (txt?.text) txt.alpha = f(agent) ?? visOps.textAlpha;
     },
     fontName: (agent, spr, f) => {
       const txt = spr.children[0];

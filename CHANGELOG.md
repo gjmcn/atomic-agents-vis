@@ -1,3 +1,7 @@
+#### 0.4.2 &mdash; 23 May, 2022
+
+* Top-level `textAlign`, `textTint` and `textAlpha` options.
+
 #### 0.4.1 &mdash; 23 May, 2022
 
 * Fix `textRotate` and `tile` bugs.
