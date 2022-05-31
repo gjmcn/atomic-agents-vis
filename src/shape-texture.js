@@ -41,5 +41,7 @@ export function shapeTexture(shape, app, useLine) {
   gr.beginFill(shape.color, shape.alpha);
   drawShape[shape.name](shape, gr);
   gr.endFill();
-  return app.renderer.generateTexture(gr);
+  const t = app.renderer.generateTexture(gr);
+  gr.destroy();
+  return t;
 }

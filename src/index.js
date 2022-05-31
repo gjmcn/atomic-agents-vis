@@ -2,15 +2,17 @@
 // Vis function.
 ////////////////////////////////////////////////////////////////////////////////
 
+
 // use browser version of PixiJS to fix issue #2
 import * as PIXI from '../node_modules/pixi.js/dist/browser/pixi.mjs';
 import { shapeTexture } from './shape-texture.js';
-import { colors } from './colors.js';
 import { defaults } from './defaults.js';
 
 PIXI.utils.skipHello();
 
-export { PIXI, colors };
+export { PIXI };
+export { colors } from './colors.js';
+export { line, text } from './helpers.js';
 
 
 // ===== vis function ==========================================================

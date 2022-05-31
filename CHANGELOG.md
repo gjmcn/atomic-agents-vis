@@ -1,3 +1,9 @@
+#### 0.4.3 &mdash; 31 May, 2022
+
+* Add `line` and `text` helpers.
+
+* Destroy graphics objects for advanced shapes once converted them to textures.
+
 #### 0.4.2 &mdash; 23 May, 2022
 
 * Top-level `textAlign`, `textTint` and `textAlpha` options.

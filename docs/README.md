@@ -18,8 +18,8 @@ import * as AV from 'https://cdn.skypack.dev/@gjmcn/atomic-agents-vis';
 ```
 
 ```js
-// or use named imports
-import {vis, visObs, colors, PIXI} from 'https://cdn.skypack.dev/@gjmcn/atomic-agents-vis';
+// or use named imports, e.g.
+import {vis, colors} from 'https://cdn.skypack.dev/@gjmcn/atomic-agents-vis';
 ```
 
 ?> Note: append `?min` to the Skypack URL for minified code.
@@ -32,6 +32,7 @@ Atomic Agents Vis exports:
 * [`visObs`](#the-visObs-function): a wrapper function for use in [Observable](https://observablehq.com/).
 * [`colors`](#colors): a categorical color scheme.
 * `PIXI`: the [PixiJS](https://pixijs.com/) object.
+* [Helper functions](#helpers).
 
 Use `vis(sim)` or `vis(sim, options)` to visualise a simulation, where `sim` is an Atomic Agents simulation, and `options` is an object. The `vis` function automatically runs the simulation (do not use `sim.tick()` or `sim.run()`) and returns the PixiJS application. The simulation can be paused and unpaused as normal: `sim.pause(true)`, `sim.pause(false)`. When the simulation is paused, the visualisation is frozen and the [`beforeTick`](#before-and-after-functions) and [`afterTick`](#before-and-after-functions) functions are not called. When the simulation is unpaused, it automatically resumes.
 
@@ -78,17 +79,6 @@ The `options` object passed to `vis` or `visObs` can include the following:
 ?> Note: 'top-level' text options can also be passed to `vis` and `visObs`. See [Text](#text) for details.
 
 To avoid clearing the canvas between frames, use `clearBeforeRender: false` <i>and</i> `preserveDrawingBuffer: true`. In this case, [`baseColor`](#basic) and [`baseAlpha`](#basic) are ignored; if there is no [background](#base-and-background), actors leave permanent trails; if there is a background with alpha less than 1, actors leave fading trails. Note that 'trails' are from previous frames so are covered by anything drawn in the current frame. Also, a background with alpha less than one will not appear faint since the background will keep being drawn on top of itself.
-
-Options such as `afterSetup` can be used to add extra content with PixiJS. For example, some bitmap text:
-
-```js
-vis(new AA.Simulation(), {
-  images: ['../bitmap-text/some-font.xml'],
-  afterSetup: (sim, app, PIXI) => {
-    app.stage.addChild(new PIXI.BitmapText('Hello', {fontName: 'SomeFont'}));
-  }
-});
-```
 
 ## Background and Agent Options
 
@@ -335,3 +325,31 @@ Each of the back, middle and front containers (see [Drawing Order](#drawing-orde
 Set the `backParticles` option to `true` to specify that the back container is a particle container. The `middleParticles` and `frontParticles` options are used similarly.
 
 Instead of setting a particle option to `true`, we can use a positive integer: the estimated maximum size required for the container. This need not be accurate since the container will resize if more 'particles' are required. When a particle option is `true`, `10000` is used as the estimated maximum size.
+
+## Helpers
+
+Atomic Agents Vis exports the following helper functions:
+
+| Function | Description | Return |
+|:---|:---|:---|
+| `line(points, options)` | Convenience function for creating a line or polyline with `PIXI.Graphics`. `points` should be an array of objects with `x` and `y` properties (so a point can an Atomic Agents vector or agent). If passed, `options` should be an object; valid properties and their defaults are:<ul style="margin:0"><li>`width = 1`: width.</li><li>`color = 0x0`: color.</li><li>`alpha = 1`: alpha.</li><li>`join = 'miter'`: line join style; can be `'bevel'`,`'miter'` or `'round'`.</li><li>`cap = 'butt'`: line cap style; can be `'butt'`,`'round'` or `'square'`.</li></ul> | `PIXI.Graphics`<br>object  |
+| `text(t, x, y, options)` | Convenience function for creating a `PIXI.BitmapText` object with text `t` and position `x`,`y`. `options` should be an object; valid properties and their defaults are:<ul style="margin:0"><li>`fontName`: font name (required).</li><li>`fontSize = 16`: font size.</li><li>`align = 'center'`: alignment for multiline text; can be `'left'`, `'center'`, `'right'` or `'justify'`.</li><li>`tint = 0x0`: tint (i.e. color).</li><li>`letterSpacing = 0`: letter spacing.</li><li>`maxWidth = 0`: max width; text automatically wraps to stay within the max width.</li><li>`alpha = 1`: alpha.</li><li>`xAnchor: 0.5`: x anchor; `0` for left, `0.5` for center, `1` for right.</li><li>`yAnchor: 0.5`: y anchor; `0` for top, `0.5` for center, `1` for bottom.</li></ul><br>__Note:__ Bitmap fonts must be loaded before they are used &mdash; see example below. | `PIXI.BitmapText`<br>object |
+
+An example of using `line` and `text`:
+
+```js
+const points = [{x: 20, y: 50}, {x:200, y: 200}, {x: 40, y: 150}];
+
+AV.vis(new AA.Simulation(), {
+  
+  // load bitmap font
+  images: ['https://cdn.jsdelivr.net/gh/gjmcn/sprites/bitmap-fonts-96/swansea.xml'],
+  
+  // call text after font has loaded
+  afterSetup: (sim, app) => {
+    app.stage.addChild(AV.line(points, {width: 5}));
+    app.stage.addChild(AV.text('hello', 100, 200, {fontName: 'Swansea'}));
+  }
+
+});
+```
