@@ -1,9 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Helper functions.
+// Helper constants and functions.
 ////////////////////////////////////////////////////////////////////////////////
 
 
 import * as PIXI from '../node_modules/pixi.js/dist/browser/pixi.mjs';
+
+export const directions = [ 0, 0.5 * Math.PI, Math.PI, 1.5 * Math.PI ];
 
 export function line(points, options) {
   options = Object.assign({

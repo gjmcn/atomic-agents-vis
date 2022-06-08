@@ -7,6 +7,7 @@
 import * as PIXI from '../node_modules/pixi.js/dist/browser/pixi.mjs';
 import { shapeTexture } from './shape-texture.js';
 import { defaults } from './defaults.js';
+import { directions } from './helpers.js';
 
 PIXI.utils.skipHello();
 
@@ -310,6 +311,8 @@ export function vis(sim, visOps = {}) {
       }
     }
     let spr;
+    let direc = imgTexture && optionValue(agent, 'direction');
+    const flipAspectRatio = direc && direc !== 2;
     if (type === 'square') {
       spr = new Sprite(imgTexture || info.shpTexture);
       spr.width = sim.gridStep;
@@ -318,17 +321,44 @@ export function vis(sim, visOps = {}) {
     else {  // zone
       const texture = imgTexture || info.shpTexture;
       if (useTiling) {
-        spr = TilingSprite.from(texture, {width: w, height: h});
-        spr.tileScale.x = sim.gridStep / texture.width;
-        spr.tileScale.y = sim.gridStep / texture.height;
+        if (flipAspectRatio) {
+          spr = TilingSprite.from(texture, {width: h, height: w});
+          spr.tileScale.x = sim.gridStep / texture.height;
+          spr.tileScale.y = sim.gridStep / texture.width;
+        }
+        else {
+          spr = TilingSprite.from(texture, {width: w, height: h});
+          spr.tileScale.x = sim.gridStep / texture.width;
+          spr.tileScale.y = sim.gridStep / texture.height;
+        }
       }
       else {
         spr = new Sprite(texture);
-        spr.width = w;
-        spr.height = h;
+        if (flipAspectRatio) {
+          spr.width = h;
+          spr.height = w;
+        }
+        else {
+          spr.width = w;
+          spr.height = h;
+        }
       }
     }
-    spr.position.set(agent.xMin, agent.yMin);
+    if (direc) {
+      spr.anchor.set(0.5, 0.5);
+      spr.rotation = directions[direc];
+      if (flipAspectRatio) {
+        spr.position.set(
+          agent.xMin + spr.height / 2, agent.yMin + spr.width / 2);
+      }
+      else {
+        spr.position.set(
+          agent.xMin + spr.width / 2, agent.yMin + spr.height / 2);
+      }
+    }
+    else {
+      spr.position.set(agent.xMin, agent.yMin);
+    }
     spr.tint = optionValue(agent, 'tint');
     spr.alpha = optionValue(agent, 'alpha');
     addText(optionValue(agent, 'text'), agent, spr);
