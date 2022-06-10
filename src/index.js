@@ -7,14 +7,13 @@
 import * as PIXI from '../node_modules/pixi.js/dist/browser/pixi.mjs';
 import { shapeTexture } from './shape-texture.js';
 import { defaults } from './defaults.js';
-import { directions } from './helpers.js';
-
-PIXI.utils.skipHello();
+import { directionCodes } from './helpers.js';
 
 export { PIXI };
 export { colors } from './colors.js';
 export { line, text } from './helpers.js';
 
+PIXI.utils.skipHello();
 
 // ===== vis function ==========================================================
 
@@ -56,6 +55,20 @@ export function vis(sim, visOps = {}) {
   // is nullish?
   function isNullish(v) {
     return v === null || v === undefined;
+  }
+
+  // get rotated texture
+  {
+    const rotatedTextures = {};
+    var getRotatedTexture = function(imgPath, direction) {
+      const propName = `${imgPath}--${direction}`;
+      if (!rotatedTextures[propName]) {
+        const t = PIXI.Texture.from(imgPath).clone();
+        t.rotate = directionCodes[direction];
+        rotatedTextures[propName] = t;
+      }
+      return rotatedTextures[propName];
+    };
   }
 
 
@@ -290,7 +303,12 @@ export function vis(sim, visOps = {}) {
     }
     const info = {};
     const imgPath = optionValue(agent, 'image');
-    const imgTexture = imgPath ? PIXI.Texture.from(imgPath) : null;
+    const imgTexture = imgPath
+      ? (agent.direction
+          ? getRotatedTexture(imgPath, agent.direction)
+          : PIXI.Texture.from(imgPath)
+        )
+      : null;
     if (!imgTexture || agent._visUpdates?.has('image')) {    
       if (optionValue(agent, 'advanced')) {
         info.shpTexture = shapeTexture({
@@ -311,8 +329,6 @@ export function vis(sim, visOps = {}) {
       }
     }
     let spr;
-    let direc = imgTexture && optionValue(agent, 'direction');
-    const flipAspectRatio = direc && direc !== 2;
     if (type === 'square') {
       spr = new Sprite(imgTexture || info.shpTexture);
       spr.width = sim.gridStep;
@@ -321,44 +337,17 @@ export function vis(sim, visOps = {}) {
     else {  // zone
       const texture = imgTexture || info.shpTexture;
       if (useTiling) {
-        if (flipAspectRatio) {
-          spr = TilingSprite.from(texture, {width: h, height: w});
-          spr.tileScale.x = sim.gridStep / texture.height;
-          spr.tileScale.y = sim.gridStep / texture.width;
-        }
-        else {
-          spr = TilingSprite.from(texture, {width: w, height: h});
-          spr.tileScale.x = sim.gridStep / texture.width;
-          spr.tileScale.y = sim.gridStep / texture.height;
-        }
+        spr = TilingSprite.from(texture, {width: w, height: h});
+        spr.tileScale.x = sim.gridStep / texture.width;
+        spr.tileScale.y = sim.gridStep / texture.height;
       }
       else {
         spr = new Sprite(texture);
-        if (flipAspectRatio) {
-          spr.width = h;
-          spr.height = w;
-        }
-        else {
-          spr.width = w;
-          spr.height = h;
-        }
+        spr.width = w;
+        spr.height = h;
       }
     }
-    if (direc) {
-      spr.anchor.set(0.5, 0.5);
-      spr.rotation = directions[direc];
-      if (flipAspectRatio) {
-        spr.position.set(
-          agent.xMin + spr.height / 2, agent.yMin + spr.width / 2);
-      }
-      else {
-        spr.position.set(
-          agent.xMin + spr.width / 2, agent.yMin + spr.height / 2);
-      }
-    }
-    else {
-      spr.position.set(agent.xMin, agent.yMin);
-    }
+    spr.position.set(agent.xMin, agent.yMin);
     spr.tint = optionValue(agent, 'tint');
     spr.alpha = optionValue(agent, 'alpha');
     addText(optionValue(agent, 'text'), agent, spr);
@@ -427,8 +416,11 @@ export function vis(sim, visOps = {}) {
     },
     image: (agent, spr, f) => {
       const imgPath = f(agent) ?? defaults[agent.type].image;
-      const texture = imgPath 
-        ? PIXI.Texture.from(imgPath)
+      const texture = imgPath
+        ? (agent.direction && (agent.type === 'square' || agent.type === 'zone')
+            ? getRotatedTexture(imgPath, agent.direction)
+            : PIXI.Texture.from(imgPath)
+          ) 
         : agentMaps[agent.type].get(agent).shpTexture;
       if (spr.texture !== texture) spr.texture = texture;
     },
