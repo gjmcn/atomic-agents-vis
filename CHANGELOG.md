@@ -1,3 +1,7 @@
+#### 0.4.4 &mdash; 12 June, 2022
+
+* Square and zone images use `direction` property.
+
 #### 0.4.3 &mdash; 31 May, 2022
 
 * Add `line` and `text` helpers.

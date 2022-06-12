@@ -34,7 +34,7 @@ Atomic Agents Vis exports:
 * `PIXI`: the [PixiJS](https://pixijs.com/) object.
 * [Helper functions](#helpers).
 
-Use `vis(sim)` or `vis(sim, options)` to visualise a simulation, where `sim` is an Atomic Agents simulation, and `options` is an object. The `vis` function automatically runs the simulation (do not use `sim.tick()` or `sim.run()`) and returns the PixiJS application. The simulation can be paused and unpaused as normal: `sim.pause(true)`, `sim.pause(false)`. When the simulation is paused, the visualisation is frozen and the [`beforeTick`](#before-and-after-functions) and [`afterTick`](#before-and-after-functions) functions are not called. When the simulation is unpaused, it automatically resumes.
+Use `vis(sim)` or `vis(sim, options)` to visualise a simulation, where `sim` is an Atomic Agents simulation, and `options` is an object. The `vis` function automatically runs the simulation (do not use `sim.tick()` or `sim.run()`) and returns the PixiJS application. The simulation can be paused and unpaused as normal: `sim.pause(true)`, `sim.pause(false)`. When the simulation is paused, the visualisation is frozen and the [`beforeTick`](#vis-options) and [`afterTick`](#vis-options) functions are not called. When the simulation is unpaused, it automatically resumes.
 
 While an Atomic Agents simulation will run in any JavaScript environment, Atomic Agents Vis can only be used in the browser &mdash; or a browser-like environment like [Electron](https://www.electronjs.org/).
 
@@ -300,6 +300,19 @@ AV.vis(sim, {
 To use an image file directly, preload the image with `images` and use the same path/URL in the appropriate `image` option &mdash; not just the file name. An image can be used without preloading it, but the image will 'pop in' after it loads. Images that are [tiled](#tiling) must be preloaded for the image-to-tile scale to be computed correctly.
 
 An actor with pointing/heading `0` faces the viewer's right, so images that will be used to indicate actors' pointings/headings should also face right.
+
+For a square or zone, the image is rotated/reflected based on the agent's `direction` property:
+
+| Square/Zone Direction | Image Transformation |
+|:---:|:---|
+| 0 | no transformation |
+| 1 | 90° (clockwise) |
+| 2 | 180° | 
+| 3 | 270° |
+| 4 | flip horizontal |
+| 5 | flip vertical |
+
+If the `direction` of a square or zone changes during the simulation, the agent's `image` option must be a function for the image rotation/reflection to be updated &mdash; so even if the image path does not change, use  e.g. `direction: () => 'house.png'` rather than `direction: 'house.png'`.
 
 ## Tiling
 

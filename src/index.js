@@ -15,6 +15,7 @@ export { line, text } from './helpers.js';
 
 PIXI.utils.skipHello();
 
+
 // ===== vis function ==========================================================
 
 export function vis(sim, visOps = {}) {
@@ -309,7 +310,7 @@ export function vis(sim, visOps = {}) {
           : PIXI.Texture.from(imgPath)
         )
       : null;
-    if (!imgTexture || agent._visUpdates?.has('image')) {    
+    if (!imgTexture || agent._visUpdates?.has('image')) {
       if (optionValue(agent, 'advanced')) {
         info.shpTexture = shapeTexture({
           name: 'rect',
@@ -556,7 +557,7 @@ export function vis(sim, visOps = {}) {
     for (let sq of updateSets.square) {
       updateAgent(sq, agentMaps.square.get(sq));
     }
-    
+
     // zones: remove, add, update
     for (let zn of sim._zonesRemoved) {
       if (agentMaps.zone.has(zn)) {
@@ -572,7 +573,7 @@ export function vis(sim, visOps = {}) {
     for (let zn of updateSets.zone) {
       updateAgent(zn, agentMaps.zone.get(zn));
     }
-    
+
     // actors: remove, add, update
     for (let ac of sim._actorsRemoved) {
       if (agentMaps.actor.has(ac)) {
