@@ -311,8 +311,10 @@ For a square or zone, the image is rotated/reflected based on the agent's `direc
 | 3 | 270° |
 | 4 | flip horizontal |
 | 5 | flip vertical |
+| 6 | reflect in main diagonal |
+| 7 | reflect in reverse diagonal |
 
-If the `direction` of a square or zone changes during the simulation, the agent's `image` option must be a function for the image rotation/reflection to be updated &mdash; so even if the image path does not change, use  e.g. `direction: () => 'house.png'` rather than `direction: 'house.png'`.
+If the `direction` of a square or zone changes during the simulation, the agent's `image` option must be a function for the image rotation/reflection to be updated &mdash; so even if the image path does not change, use  e.g. `image: () => 'house.png'` rather than `image: 'house.png'`.
 
 ## Tiling
 

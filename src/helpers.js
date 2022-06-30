@@ -5,7 +5,7 @@
 
 import * as PIXI from '../node_modules/pixi.js/dist/browser/pixi.mjs';
 
-export const directionCodes = [0, 6, 4, 2, 12, 8];
+export const directionCodes = [0, 6, 4, 2, 12, 8, 10, 14];
 
 export function line(points, options) {
   options = Object.assign({

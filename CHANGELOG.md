@@ -1,3 +1,7 @@
+#### 0.4.5 &mdash; 30 June, 2022
+
+* Add direction codes to reflect square or zone image in main or reverse diagonal.
+
 #### 0.4.4 &mdash; 12 June, 2022
 
 * Square and zone images use `direction` property.

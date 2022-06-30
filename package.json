@@ -1,6 +1,6 @@
 {
   "name": "@gjmcn/atomic-agents-vis",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Visualise Atomic Agents simulations.",
   "type": "module",
   "main": "src/index.js",
