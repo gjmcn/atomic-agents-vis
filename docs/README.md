@@ -29,7 +29,7 @@ import {vis, colors} from 'https://cdn.skypack.dev/@gjmcn/atomic-agents-vis';
 Atomic Agents Vis exports:
 
 * `vis`: the main visualisation function. 
-* [`visObs`](#the-visObs-function): a wrapper function for use in [Observable](https://observablehq.com/).
+* `visObs`: a wrapper function for use in [Observable](https://observablehq.com/).
 * [`colors`](#colors): a categorical color scheme.
 * `PIXI`: the [PixiJS](https://pixijs.com/) object.
 * [Helper functions](#helpers).
@@ -47,7 +47,7 @@ The `visObs` function can be used instead of `vis` when working in [Observable](
 
 ## Vis Options
 
-The `options` object passed to `vis` or `visObs` can include the following:
+The `options` object passed to `vis` can include the following:
 
 | Option       | Default   | Description |
 |:-------------|:-----------|:------------|
@@ -76,7 +76,7 @@ The `options` object passed to `vis` or `visObs` can include the following:
 | `afterTick` | `null` | Function to call after each tick (after `sim.afterTick` is called and the visualisation is updated). The function is passed the simulation object, the PIXI app and the PIXI object. |
 | `finished` | `null` | Function to call after the simulation ends. The function is passed the simulation object, the PIXI app and the PIXI object. |
 
-?> Note: 'top-level' text options can also be passed to `vis` and `visObs`. See [Text](#text) for details.
+?> Note: 'top-level' text options can also be passed to `vis`. See [Text](#text) for details.
 
 To avoid clearing the canvas between frames, use `clearBeforeRender: false` <i>and</i> `preserveDrawingBuffer: true`. In this case, [`baseColor`](#basic) and [`baseAlpha`](#basic) are ignored; if there is no [background](#base-and-background), actors leave permanent trails; if there is a background with alpha less than 1, actors leave fading trails. Note that 'trails' are from previous frames so are covered by anything drawn in the current frame. Also, a background with alpha less than one will not appear faint since the background will keep being drawn on top of itself.
 
@@ -147,7 +147,7 @@ The "Update" column indicates if an option can be a function. When an option is 
 
 <p style="font-size: 0.9em; margin-top: -0.9em">(Default values shown; empty cell indicates that option is not used; see Basic options for an explanation of "Update".)</p>
 
-'Top-level' options are passed to the `vis` or `visObs` functions. A top-level option is used when the corresponding agent option is `null` or `undefined`.
+'Top-level' options are passed to the `vis` function. A top-level option is used when the corresponding agent option is `null` or `undefined`.
 
 Atomic Agents Vis uses bitmap text, so one or more bitmap fonts should be preloaded using the `images` option. For example:
 
@@ -229,14 +229,14 @@ If an agent has even a single event listener, it becomes interactive and blocks 
 
 ## Drawing Order
 
-An agent is either never drawn, or it is added to one of three <i>visualisation containers</i> based on its `zIndex` property when `vis` or `visObs` is called (or if the agent is added to the simulation after it has started, the value of `zIndex` at the end of the tick when the agent is added):
+An agent is either never drawn, or it is added to one of three <i>visualisation containers</i> based on its `zIndex` property when `vis` is called (or if the agent is added to the simulation after it has started, the value of `zIndex` at the end of the tick when the agent is added):
 
 * never drawn, `zIndex`: `NaN` (or any non-number).
 * <i>back container</i>, `zIndex`: `-Infinity`.
 * <i>middle container</i>, `zIndex`: finite number.
 * <i>front container</i>, `zIndex`: `Infinity`.
 
-When `vis` or `visObs` is called, agents in the simulation are added to visualisation containers in the order: squares, then zones, then actors. For each agent type, agents are added in the order they were added to the simulation. Each tick, new agents are added to containers using the same rules.
+When `vis` is called, agents in the simulation are added to visualisation containers in the order: squares, then zones, then actors. For each agent type, agents are added in the order they were added to the simulation. Each tick, new agents are added to containers using the same rules.
 
 Each tick, the simulation is drawn in the following order:
 
